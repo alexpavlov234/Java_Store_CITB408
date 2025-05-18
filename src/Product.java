@@ -1,8 +1,11 @@
+import java.time.LocalDate;
+
 public class Product {
     private int id;
     private String name;
     private double unitPurchasePrice;
     private ProductCategory category;
+    private LocalDate expirationDate;
 
     public Product(int id, String name, double unitPurchasePrice, ProductCategory category) {
         this.id = id;
@@ -41,5 +44,17 @@ public class Product {
 
     public void setCategory(ProductCategory category) {
         this.category = category;
+    }
+
+    public LocalDate getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    public boolean isProductSellable(){
+        return expirationDate.isBefore(LocalDate.now());
     }
 }
