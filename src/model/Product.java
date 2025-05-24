@@ -75,4 +75,9 @@ public class Product implements Serializable {
         this.unitSalePrice = unitSalePrice;
     }
 
+    public boolean isProductExpired() {
+        return LocalDate.now().isAfter(expirationDate);
+    }
+
+
 }

@@ -1,13 +1,13 @@
 package model;
 
+import service.ProductService;
+import service.ServiceFactory;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Store implements Serializable {
     @Serial
@@ -47,6 +47,7 @@ public class Store implements Serializable {
     public boolean isProductExpirationDiscountable(Product product) {
         return daysBeforeExpirationThreshold >= ChronoUnit.DAYS.between(LocalDate.now(), product.getExpirationDate());
     }
+
 
 
     public int getId() {
@@ -187,4 +188,37 @@ public class Store implements Serializable {
     }
 
 
+    public List<Product> getAvailableProducts() {
+        List<Product> availableProducts = new ArrayList<>();
+        ProductService productService = ServiceFactory.getProductService();
+        for (Map.Entry<Integer, Integer> entry : productsInStock.entrySet()) {
+            int productId = entry.getKey();
+            int stockQuantity = entry.getValue();
+
+            if (stockQuantity > 0) {
+                Optional<Product> productOpt = productService.findEntityById(productId);
+                if (productOpt.isPresent()) {
+                    Product product = productOpt.get();
+                    if (!product.isProductExpired()){
+                        availableProducts.add(product);
+                    }
+                }
+            }
+        }
+        return availableProducts;
+    }
+
+    public void updateProductPrices() {
+        ProductService productService = ServiceFactory.getProductService();
+        for (Map.Entry<Integer, Integer> entry : productsInStock.entrySet()) {
+            int productId = entry.getKey();
+            Optional<Product> productOpt = productService.findEntityById(productId);
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                double finalPrice = getProductFinalPrice(product);
+                product.setUnitSalePrice(finalPrice);
+                productService.updateEntity(product);
+            }
+        }
+    }
 }

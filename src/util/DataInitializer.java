@@ -74,6 +74,10 @@ public class DataInitializer {
                 storeService.updateEntity(store1);
                 storeService.updateEntity(store2);
 
+                // Актуализиране на цените на продуктите в магазините
+                store1.updateProductPrices();
+                store2.updateProductPrices();
+
                 // Създаване на клиенти
                 clientService.createEntity(new Client("Николина Чаушева", 120));
                 clientService.createEntity(new Client("Иван Петров", 10));
@@ -106,13 +110,6 @@ public class DataInitializer {
                 }
             }
         }
-    }
-
-    /**
-     * Инициализира магазините
-     */
-    private static void initializeStores() {
-
     }
 
 
