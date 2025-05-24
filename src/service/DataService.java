@@ -25,13 +25,7 @@ public interface DataService<T, ID> {
      */
     T updateEntity(T entity);
     
-    /**
-     * Изтрива обект по идентификатор
-     * @param id идентификаторът на обекта, който ще бъде изтрит
-     * @return true ако обектът е изтрит успешно, false в противен случай
-     */
-    boolean deleteEntity(ID id);
-    
+
     /**
      * Намира обект по идентификатор
      * @param id идентификаторът на обекта
@@ -54,7 +48,14 @@ public interface DataService<T, ID> {
 
     /**
      * Отпечатва информация за обект в конзолата
-     * @param entity обектът, който трябва да бъде отпечатан     *
+     * @param entity обектът, който трябва да бъде отпечатан
      */
     void printEntity(T entity);
+
+    /**
+     * Валидация на обект
+     * @param entity обектът, който трябва да бъде валидиран
+     * @throws IllegalArgumentException ако обектът не е валиден
+     */
+    void validateEntity(T entity) throws IllegalArgumentException;
 }

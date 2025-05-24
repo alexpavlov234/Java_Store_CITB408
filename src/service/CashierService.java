@@ -2,7 +2,6 @@ package service;
 
 import dao.FileStorage;
 import model.Cashier;
-import model.Product;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,14 +12,14 @@ public class CashierService implements DataService<Cashier, Integer> {
 
     @Override
     public Cashier createEntity(Cashier entity) {
-        validateCashier(entity);
+        validateEntity(entity);
         FileStorage.addObject(entity);
         return entity;
     }
 
     @Override
     public Cashier updateEntity(Cashier entity) {
-        validateCashier(entity);
+        validateEntity(entity);
 
         boolean updated = FileStorage.updateObject(
                 entity, c -> c.getId() == entity.getId());
@@ -33,18 +32,6 @@ public class CashierService implements DataService<Cashier, Integer> {
         return entity;
     }
 
-    @Override
-    public boolean deleteEntity(Integer integer) {
-        boolean deleted = FileStorage.removeObject(
-                Cashier.class, c -> c.getId() == integer);
-
-        if (!deleted) {
-            throw new IllegalArgumentException(
-                    "Касиер с ID " + integer + " не съществува");
-        } else {
-            return true;
-        }
-    }
 
     @Override
     public Optional<Cashier> findEntityById(Integer integer) {
@@ -85,18 +72,22 @@ public class CashierService implements DataService<Cashier, Integer> {
         System.out.println("Касиер: " + entity.getName() + ", Заплата: " + entity.getSalary());
     }
 
-    private void validateCashier(Cashier cashier) {
+    @Override
+    public void validateEntity(Cashier cashier) {
         if (cashier == null) {
-            throw new IllegalArgumentException("Грешка: Касиерът не може да бъде null");
+            throw new IllegalArgumentException("Касиерът не може да бъде null");
+        }
 
+        if (cashier.getId() <= 0) {
+            throw new IllegalArgumentException("Невалиден ID на касиер");
         }
 
         if (cashier.getName() == null || cashier.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Грешка: Името на касиер с ID " + cashier.getId() + " не може да бъде празно");
+            throw new IllegalArgumentException("Името на касиер с ID " + cashier.getId() + " не може да бъде null или празно");
         }
 
         if (cashier.getSalary() < 0) {
-            throw new IllegalArgumentException("Грешка: Заплатата на касиер с ID " + cashier.getId() + " не може да бъде отрицателна");
+            throw new IllegalArgumentException("Заплатата на касиер с ID " + cashier.getId() + " не може да бъде отрицателна");
         }
 
     }
