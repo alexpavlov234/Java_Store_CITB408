@@ -4,7 +4,6 @@ import dao.FileStorage;
 import model.Client;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -59,13 +58,13 @@ public class ClientService implements DataService<Client, Integer> {
         if (entity == null) {
             throw new IllegalArgumentException("Клиентът не може да бъде null");
         }
-        if ( entity.getId() < 0) {
+        if (entity.getId() < 0) {
             throw new IllegalArgumentException("Невалиден ID на клиент");
         }
         if (entity.getName() == null || entity.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Името на клиент с ID " + entity.getId() + " не може да бъде null или празно");
         }
-        if(entity.getBalance() < 0) {
+        if (entity.getBalance() < 0) {
             throw new IllegalArgumentException("Балансът на клиент с ID " + entity.getId() + " не може да бъде отрицателен");
         }
     }

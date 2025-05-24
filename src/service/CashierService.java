@@ -4,7 +4,6 @@ import dao.FileStorage;
 import model.Cashier;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -56,6 +55,7 @@ public class CashierService implements DataService<Cashier, Integer> {
 
     /**
      * Изчислява сумата на заплатите на всички касиери
+     *
      * @return Сумата на заплатите на всички касиери
      */
     public double calculateTotalSalaries() {

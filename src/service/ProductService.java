@@ -2,10 +2,8 @@ package service;
 
 import dao.FileStorage;
 import model.Product;
-import model.ProductCategory;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -67,7 +65,7 @@ public class ProductService implements DataService<Product, Integer> {
             throw new IllegalArgumentException("Името на продукт с ID " + product.getId() + " не може да бъде null или празно");
         }
 
-        if(product.getUnitPurchasePrice() < 0) {
+        if (product.getUnitPurchasePrice() < 0) {
             throw new IllegalArgumentException("Покупната цена на продукт с ID " + product.getId() + " трябва да бъде положително число");
         }
 

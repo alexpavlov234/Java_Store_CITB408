@@ -2,7 +2,6 @@ package model;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 public class Client implements Serializable {
     @Serial

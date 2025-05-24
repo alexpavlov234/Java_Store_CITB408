@@ -123,7 +123,8 @@ public class FileStorage {
 
     /**
      * Актуализира обект в колекцията
-     * @param object Обектът, който трябва да бъде актуализиран
+     *
+     * @param object  Обектът, който трябва да бъде актуализиран
      * @param matcher Функция, която определя дали обектът съвпада с търсения елемент
      * @return true ако обектът е актуализиран, false ако не е намерен
      */
@@ -143,7 +144,8 @@ public class FileStorage {
 
     /**
      * Изтрива обект от колекцията
-     * @param type Типът на колекцията
+     *
+     * @param type    Типът на колекцията
      * @param matcher Функция, която определя дали обектът трябва да бъде изтрит
      */
     public static <T> boolean removeObject(Class<T> type, MatcherFunction<T> matcher) {
@@ -157,7 +159,8 @@ public class FileStorage {
 
     /**
      * Търси обект в колекцията
-     * @param type Типът на колекцията
+     *
+     * @param type    Типът на колекцията
      * @param matcher Функция, която определя критериите за търсене
      */
     public static <T> Optional<T> findObject(Class<T> type, MatcherFunction<T> matcher) {
@@ -169,7 +172,8 @@ public class FileStorage {
 
     /**
      * Намира всички обекти, отговарящи на критериите
-     * @param type Типът на колекцията
+     *
+     * @param type    Типът на колекцията
      * @param matcher Функция, която определя критериите за търсене
      */
     public static <T> List<T> findAllObjects(Class<T> type, MatcherFunction<T> matcher) {

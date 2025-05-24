@@ -62,7 +62,7 @@ public class Product implements Serializable {
         this.expirationDate = expirationDate;
     }
 
-    public boolean isProductSellable(){
+    public boolean isProductSellable() {
         return expirationDate.isAfter(LocalDate.now()) ||
                 expirationDate.isEqual(LocalDate.now());
     }

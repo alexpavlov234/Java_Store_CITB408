@@ -5,7 +5,6 @@ import service.*;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -14,9 +13,9 @@ import java.util.HashMap;
  * ако няма съществуващи данни
  */
 public class DataInitializer {
-    
+
     private static final String DATA_DIR = "data/";
-    
+
     // Услуги
     private static final CashierService cashierService = ServiceFactory.getCashierService();
     private static final StoreService storeService = ServiceFactory.getStoreService();

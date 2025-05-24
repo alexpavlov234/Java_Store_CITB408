@@ -4,7 +4,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Store implements Serializable {
     @Serial
@@ -32,23 +35,18 @@ public class Store implements Serializable {
     public double getProductFinalPrice(Product product) {
         double markupPercentage = markupPercentages.get(product.getCategory());
 
-        double productFinalPrice = product.getUnitPurchasePrice() + (product.getUnitPurchasePrice() * markupPercentage/100);
+        double productFinalPrice = product.getUnitPurchasePrice() + (product.getUnitPurchasePrice() * markupPercentage / 100);
 
-        if(isProductExpirationDiscountable(product)){
-            return productFinalPrice - (productFinalPrice * discountPercentNearExpiration/100);
+        if (isProductExpirationDiscountable(product)) {
+            return productFinalPrice - (productFinalPrice * discountPercentNearExpiration / 100);
         } else {
             return productFinalPrice;
         }
     }
 
-    public boolean isProductExpirationDiscountable(Product product){
-        if(daysBeforeExpirationThreshold >= ChronoUnit.DAYS.between(LocalDate.now(), product.getExpirationDate())){
-            return true;
-        } else {
-            return false;
-        }
+    public boolean isProductExpirationDiscountable(Product product) {
+        return daysBeforeExpirationThreshold >= ChronoUnit.DAYS.between(LocalDate.now(), product.getExpirationDate());
     }
-
 
 
     public int getId() {
@@ -76,9 +74,7 @@ public class Store implements Serializable {
     }
 
     public void addCashier(int cashierId) {
-        if (!cashiersIds.contains(cashierId)) {
-            cashiersIds.add(cashierId);
-        }
+        cashiersIds.add(cashierId);
     }
 
     public void removeCashier(int cashierId) {
@@ -94,9 +90,7 @@ public class Store implements Serializable {
     }
 
     public void addReceipt(int receiptId) {
-        if (!receiptsIds.contains(receiptId)) {
-            receiptsIds.add(receiptId);
-        }
+        receiptsIds.add(receiptId);
     }
 
     public void removeReceipt(int receiptId) {
