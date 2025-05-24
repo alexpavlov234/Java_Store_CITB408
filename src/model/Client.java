@@ -12,8 +12,7 @@ public class Client implements Serializable {
     private String name;
     private double balance;
 
-    public Client(int id, String name, double balance) {
-        this.id = id;
+    public Client(String name, double balance) {
         this.name = name;
         this.balance = balance;
     }

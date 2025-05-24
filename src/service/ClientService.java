@@ -3,6 +3,7 @@ package service;
 import dao.FileStorage;
 import model.Client;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -36,13 +37,13 @@ public class ClientService implements DataService<Client, Integer> {
     }
 
     @Override
-    public List<Client> findAllEntities() {
+    public ArrayList<Client> findAllEntities() {
         return FileStorage.getCollection(Client.class);
     }
 
     @Override
-    public List<Client> findEntityByFilter(Predicate<Client> filter) {
-        return FileStorage.getCollection(Client.class)
+    public ArrayList<Client> findEntityByFilter(Predicate<Client> filter) {
+        return (ArrayList<Client>) FileStorage.getCollection(Client.class)
                 .stream()
                 .filter(filter)
                 .toList();
@@ -58,7 +59,7 @@ public class ClientService implements DataService<Client, Integer> {
         if (entity == null) {
             throw new IllegalArgumentException("Клиентът не може да бъде null");
         }
-        if ( entity.getId() <= 0) {
+        if ( entity.getId() < 0) {
             throw new IllegalArgumentException("Невалиден ID на клиент");
         }
         if (entity.getName() == null || entity.getName().trim().isEmpty()) {

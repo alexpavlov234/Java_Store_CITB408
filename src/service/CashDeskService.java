@@ -3,6 +3,7 @@ package service;
 import dao.FileStorage;
 import model.CashDesk;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -37,13 +38,13 @@ public class CashDeskService implements DataService<CashDesk, Integer> {
     }
 
     @Override
-    public List<CashDesk> findAllEntities() {
+    public ArrayList<CashDesk> findAllEntities() {
         return FileStorage.getCollection(CashDesk.class);
     }
 
     @Override
-    public List<CashDesk> findEntityByFilter(Predicate<CashDesk> filter) {
-        return FileStorage.getCollection(CashDesk.class)
+    public ArrayList<CashDesk> findEntityByFilter(Predicate<CashDesk> filter) {
+        return (ArrayList<CashDesk>) FileStorage.getCollection(CashDesk.class)
                 .stream()
                 .filter(filter)
                 .toList();
@@ -59,10 +60,10 @@ public class CashDeskService implements DataService<CashDesk, Integer> {
         if (cashDesk == null) {
             throw new IllegalArgumentException("Касиерът не може да бъде null");
         }
-        if (cashDesk.getId() <= 0) {
+        if (cashDesk.getId() < 0) {
             throw new IllegalArgumentException("Невалиден ID на каса");
         }
-        if (cashDesk.getCashierId() <= 0) {
+        if (cashDesk.getCashier() < 0) {
             throw new IllegalArgumentException("Касата с ID " + cashDesk.getId() + " трябва да има назначен касиер");
         }
     }

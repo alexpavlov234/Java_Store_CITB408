@@ -34,19 +34,19 @@ public class Receipt implements Serializable {
         this.id = id;
     }
 
-    public int getClientId() {
+    public int getClient() {
         return clientId;
     }
 
-    public void setClientId(int clientId) {
+    public void setClient(int clientId) {
         this.clientId = clientId;
     }
 
-    public int getCashierId() {
+    public int getCashier() {
         return cashierId;
     }
 
-    public void setCashierId(int cashierId) {
+    public void setCashier(int cashierId) {
         this.cashierId = cashierId;
     }
 

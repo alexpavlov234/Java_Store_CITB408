@@ -4,9 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Store implements Serializable {
     @Serial
@@ -14,15 +12,22 @@ public class Store implements Serializable {
 
     private int id;
     private String name;
-    private List<Integer> cashiersIds;
-    private List<Integer> receiptsIds;
+    private Set<Integer> cashiersIds = new HashSet<>();
+    private Set<Integer> receiptsIds = new HashSet<>();
     private Map<Integer, Integer> productsInStock = new HashMap<>();
     private Map<Integer, Integer> productsSold = new HashMap<>();
 
-    private Map<ProductCategory, Double> markupPercentages;
+    private Map<ProductCategory, Double> markupPercentages = new HashMap<>();
 
     private int daysBeforeExpirationThreshold;
     private double discountPercentNearExpiration;
+
+    public Store(String name, Map<ProductCategory, Double> markupPercentages, int daysBeforeExpirationThreshold, double discountPercentNearExpiration) {
+        this.name = name;
+        this.markupPercentages = markupPercentages;
+        this.daysBeforeExpirationThreshold = daysBeforeExpirationThreshold;
+        this.discountPercentNearExpiration = discountPercentNearExpiration;
+    }
 
     public double getProductFinalPrice(Product product) {
         double markupPercentage = markupPercentages.get(product.getCategory());
@@ -62,39 +67,39 @@ public class Store implements Serializable {
         this.name = name;
     }
 
-    public List<Integer> getCashiersIds() {
+    public Set<Integer> getCashiersIds() {
         return cashiersIds;
     }
 
-    public void setCashiersIds(List<Integer> cashiersIds) {
+    public void setCashiersIds(Set<Integer> cashiersIds) {
         this.cashiersIds = cashiersIds;
     }
 
-    public void addCashierId(int cashierId) {
+    public void addCashier(int cashierId) {
         if (!cashiersIds.contains(cashierId)) {
             cashiersIds.add(cashierId);
         }
     }
 
-    public void removeCashierId(int cashierId) {
+    public void removeCashier(int cashierId) {
         cashiersIds.remove(Integer.valueOf(cashierId));
     }
 
-    public List<Integer> getReceiptsIds() {
+    public Set<Integer> getReceiptsIds() {
         return receiptsIds;
     }
 
-    public void setReceiptsIds(List<Integer> receiptsIds) {
+    public void setReceiptsIds(Set<Integer> receiptsIds) {
         this.receiptsIds = receiptsIds;
     }
 
-    public void addReceiptId(int receiptId) {
+    public void addReceipt(int receiptId) {
         if (!receiptsIds.contains(receiptId)) {
             receiptsIds.add(receiptId);
         }
     }
 
-    public void removeReceiptId(int receiptId) {
+    public void removeReceipt(int receiptId) {
         receiptsIds.remove(Integer.valueOf(receiptId));
     }
 

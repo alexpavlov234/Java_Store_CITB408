@@ -47,11 +47,11 @@ public class FileStorage {
      * Зарежда колекция от обекти от даден тип
      */
     @SuppressWarnings("unchecked")
-    public static <T> List<T> getCollection(Class<T> type) {
+    public static <T> ArrayList<T> getCollection(Class<T> type) {
         if (!CACHED_COLLECTIONS.containsKey(type)) {
             loadCollection(type);
         }
-        return (List<T>) CACHED_COLLECTIONS.getOrDefault(type, new ArrayList<>());
+        return (ArrayList<T>) CACHED_COLLECTIONS.getOrDefault(type, new ArrayList<>());
     }
 
     /**

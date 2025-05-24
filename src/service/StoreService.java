@@ -3,6 +3,7 @@ package service;
 import dao.FileStorage;
 import model.Store;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -37,13 +38,13 @@ public class StoreService implements DataService<Store, Integer> {
     }
 
     @Override
-    public List<Store> findAllEntities() {
+    public ArrayList<Store> findAllEntities() {
         return FileStorage.getCollection(Store.class);
     }
 
     @Override
-    public List<Store> findEntityByFilter(Predicate<Store> filter) {
-        return FileStorage.getCollection(Store.class)
+    public ArrayList<Store> findEntityByFilter(Predicate<Store> filter) {
+        return (ArrayList<Store>) FileStorage.getCollection(Store.class)
                 .stream()
                 .filter(filter)
                 .toList();
@@ -58,23 +59,11 @@ public class StoreService implements DataService<Store, Integer> {
         if (entity == null) {
             throw new IllegalArgumentException("Магазинът не може да бъде null");
         }
-        if (entity.getId() <= 0) {
+        if (entity.getId() < 0) {
             throw new IllegalArgumentException("Невалиден ID на магазина");
         }
         if (entity.getName() == null || entity.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Името на магазин с ID " + entity.getId() + " не може да бъде null или празно");
-        }
-        if(entity.getCashiersIds() == null) {
-            throw new IllegalArgumentException("Списъкът с ID на касиерите за магазин с ID " + entity.getId() + " не може да бъде null");
-        }
-        if (entity.getReceiptsIds() == null) {
-            throw new IllegalArgumentException("Списъкът с ID на издадените касови бележки за магазин с ID " + entity.getId() + " не може да бъде null");
-        }
-        if (entity.getProductsInStock() == null) {
-            throw new IllegalArgumentException("Списъкът с продукти в наличност не може да бъде null");
-        }
-        if (entity.getProductsSold() == null) {
-            throw new IllegalArgumentException("Списъкът с продадени продукти не може да бъде null");
         }
     }
 }

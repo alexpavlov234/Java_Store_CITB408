@@ -23,11 +23,11 @@ public class CashDesk implements Serializable {
         this.id = id;
     }
 
-    public int getCashierId() {
+    public int getCashier() {
         return cashierId;
     }
 
-    public void setCashierId(int cashierId) {
+    public void setCashier(int cashierId) {
         this.cashierId = cashierId;
     }
 }

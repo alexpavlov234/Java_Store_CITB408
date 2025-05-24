@@ -1,5 +1,6 @@
 package service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -37,14 +38,14 @@ public interface DataService<T, ID> {
      * Намира всички обекти
      * @return списък с всички обекти
      */
-    List<T> findAllEntities();
+    ArrayList<T> findAllEntities();
     
     /**
      * Намира всички обекти, които отговарят на определено условие
      * @param filter условието, на което трябва да отговарят обектите
      * @return списък с обекти, отговарящи на условието
      */
-    List<T> findEntityByFilter(Predicate<T> filter);
+    ArrayList<T> findEntityByFilter(Predicate<T> filter);
 
     /**
      * Отпечатва информация за обект в конзолата

@@ -15,11 +15,11 @@ public class Product implements Serializable {
     private ProductCategory category;
     private LocalDate expirationDate;
 
-    public Product(int id, String name, double unitPurchasePrice, ProductCategory category) {
-        this.id = id;
+    public Product(String name, double unitPurchasePrice, ProductCategory category, LocalDate expirationDate) {
         this.name = name;
         this.unitPurchasePrice = unitPurchasePrice;
         this.category = category;
+        this.expirationDate = expirationDate;
     }
 
     public int getId() {

@@ -3,6 +3,7 @@ package service;
 import dao.FileStorage;
 import model.Cashier;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -39,13 +40,13 @@ public class CashierService implements DataService<Cashier, Integer> {
     }
 
     @Override
-    public List<Cashier> findAllEntities() {
+    public ArrayList<Cashier> findAllEntities() {
         return FileStorage.getCollection(Cashier.class);
     }
 
     @Override
-    public List<Cashier> findEntityByFilter(Predicate<Cashier> filter) {
-        return FileStorage.getCollection(Cashier.class)
+    public ArrayList<Cashier> findEntityByFilter(Predicate<Cashier> filter) {
+        return (ArrayList<Cashier>) FileStorage.getCollection(Cashier.class)
                 .stream()
                 .filter(filter)
                 .toList();
@@ -78,7 +79,7 @@ public class CashierService implements DataService<Cashier, Integer> {
             throw new IllegalArgumentException("Касиерът не може да бъде null");
         }
 
-        if (cashier.getId() <= 0) {
+        if (cashier.getId() < 0) {
             throw new IllegalArgumentException("Невалиден ID на касиер");
         }
 

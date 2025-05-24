@@ -4,6 +4,7 @@ import dao.FileStorage;
 import model.Product;
 import model.ProductCategory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -38,13 +39,15 @@ public class ProductService implements DataService<Product, Integer> {
     }
 
     @Override
-    public List<Product> findAllEntities() {
+    public ArrayList<Product> findAllEntities() {
         return FileStorage.getCollection(Product.class);
     }
 
     @Override
-    public List<Product> findEntityByFilter(Predicate<Product> filter) {
-        return FileStorage.getCollection(Product.class).stream().filter(filter).toList();
+    public ArrayList<Product> findEntityByFilter(Predicate<Product> filter) {
+        return (ArrayList<Product>) FileStorage.getCollection(Product.class).stream()
+                .filter(filter)
+                .toList();
     }
 
     @Override
@@ -57,18 +60,18 @@ public class ProductService implements DataService<Product, Integer> {
         if (product == null) {
             throw new IllegalArgumentException("Продуктът не може да бъде null");
         }
-        if (product.getId() <= 0) {
+        if (product.getId() < 0) {
             throw new IllegalArgumentException("ID на продукта трябва да бъде положително число");
         }
         if (product.getName() == null || product.getName().isEmpty()) {
             throw new IllegalArgumentException("Името на продукт с ID " + product.getId() + " не може да бъде null или празно");
         }
 
-        if(product.getUnitPurchasePrice() <= 0) {
+        if(product.getUnitPurchasePrice() < 0) {
             throw new IllegalArgumentException("Покупната цена на продукт с ID " + product.getId() + " трябва да бъде положително число");
         }
 
-        if (product.getUnitSalePrice() <= 0) {
+        if (product.getUnitSalePrice() < 0) {
             throw new IllegalArgumentException("Продажната цена на продукт с ID " + product.getId() + " трябва да бъде положително число");
         }
 
