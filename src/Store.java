@@ -5,7 +5,8 @@ import java.util.Map;
 
 public class Store {
     private String name;
-    private List<Product> products;
+    private List<Product> productsInStock;
+    private List<Product> productsSold;
     private List<Cashier> cashiers;
 
     private Map<ProductCategory, Double> markupPercentages;

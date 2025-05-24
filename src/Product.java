@@ -6,6 +6,7 @@ public class Product {
     private double unitPurchasePrice;
     private ProductCategory category;
     private LocalDate expirationDate;
+    private int quantity;
 
     public Product(int id, String name, double unitPurchasePrice, ProductCategory category) {
         this.id = id;
@@ -56,5 +57,13 @@ public class Product {
 
     public boolean isProductSellable(){
         return expirationDate.isBefore(LocalDate.now());
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }
