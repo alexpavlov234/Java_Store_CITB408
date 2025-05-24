@@ -11,13 +11,11 @@ public class Client implements Serializable {
     private int id;
     private String name;
     private double balance;
-    private List<Product> products;
 
-    public Client(int id, String name, double balance, List<Product> products) {
+    public Client(int id, String name, double balance) {
         this.id = id;
         this.name = name;
         this.balance = balance;
-        this.products = products;
     }
 
     public int getId() {
@@ -44,11 +42,4 @@ public class Client implements Serializable {
         this.balance = balance;
     }
 
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
 }

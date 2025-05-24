@@ -8,7 +8,12 @@ public class CashDesk implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private int id;
-    private Cashier cashier;
+    private int cashierId;
+
+    public CashDesk(int id, int cashierId) {
+        this.id = id;
+        this.cashierId = cashierId;
+    }
 
     public int getId() {
         return id;
@@ -18,16 +23,11 @@ public class CashDesk implements Serializable {
         this.id = id;
     }
 
-    public Cashier getCashier() {
-        return cashier;
+    public int getCashierId() {
+        return cashierId;
     }
 
-    public void setCashier(Cashier cashier) {
-        this.cashier = cashier;
-    }
-
-    public CashDesk(int id, Cashier cashier) {
-        this.id = id;
-        this.cashier = cashier;
+    public void setCashierId(int cashierId) {
+        this.cashierId = cashierId;
     }
 }

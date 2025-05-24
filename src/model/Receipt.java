@@ -3,24 +3,27 @@ package model;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Receipt implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     private int id;
-    private Cashier cashier;
+    private int clientId;
+    private int cashierId;
     private LocalDateTime dateTime;
-    private List<Product> products;
     private double totalPrice;
+    private Map<Product, Integer> purchasedProducts = new HashMap<>();
 
-    public Receipt(int id, Cashier cashier, LocalDateTime dateTime, List<Product> products, double totalPrice) {
+    public Receipt(int id, int clientId, int cashierId, LocalDateTime dateTime) {
         this.id = id;
-        this.cashier = cashier;
+        this.clientId = clientId;
+        this.cashierId = cashierId;
         this.dateTime = dateTime;
-        this.products = products;
-        this.totalPrice = totalPrice;
+        this.totalPrice = 0.0; // Initialize total price to 0
     }
 
     public int getId() {
@@ -31,12 +34,20 @@ public class Receipt implements Serializable {
         this.id = id;
     }
 
-    public Cashier getCashier() {
-        return cashier;
+    public int getClientId() {
+        return clientId;
     }
 
-    public void setCashier(Cashier cashier) {
-        this.cashier = cashier;
+    public void setClientId(int clientId) {
+        this.clientId = clientId;
+    }
+
+    public int getCashierId() {
+        return cashierId;
+    }
+
+    public void setCashierId(int cashierId) {
+        this.cashierId = cashierId;
     }
 
     public LocalDateTime getDateTime() {
@@ -47,19 +58,39 @@ public class Receipt implements Serializable {
         this.dateTime = dateTime;
     }
 
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
-
     public double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
+    public void calculateTotalPrice() {
+        totalPrice = 0.0; // Reset total price
+        for (Map.Entry<Product, Integer> entry : purchasedProducts.entrySet()) {
+            Product product = entry.getKey();
+            int quantity = entry.getValue();
+            totalPrice += product.getUnitSalePrice() * quantity; // Assuming unitSalePrice is the price at which the product is sold
+        }
     }
+
+    // Add a method to add products to the receipt
+    public void addProduct(Product product, int quantity, double unitPrice) {
+        if (purchasedProducts.containsKey(product)) {
+            int currentQty = purchasedProducts.get(product);
+            purchasedProducts.put(product, currentQty + quantity);
+        } else {
+            purchasedProducts.put(product, quantity);
+        }
+
+        // Update total price
+        this.totalPrice += unitPrice * quantity;
+    }
+
+    public Map<Product, Integer> getPurchasedProducts() {
+        return purchasedProducts;
+    }
+
+    public void setPurchasedProducts(Map<Product, Integer> purchasedProducts) {
+        this.purchasedProducts = purchasedProducts;
+    }
+
+
 }
