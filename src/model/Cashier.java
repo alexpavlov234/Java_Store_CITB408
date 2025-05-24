@@ -17,6 +17,11 @@ public class Cashier implements Serializable {
         this.salary = salary;
     }
 
+    public Cashier(String name, double salary) {
+        this.name = name;
+        this.salary = salary;
+    }
+
     public int getId() {
         return id;
     }

@@ -1,8 +1,10 @@
 package dao;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Клас за съхранение на обекти във файлове, организирани по тип (подобно на таблици в база данни)
@@ -13,6 +15,7 @@ public class FileStorage {
     private static final String FILE_EXTENSION = ".dat";
     private static final Map<Class<?>, String> TYPE_TO_FILENAME = new HashMap<>();
     private static final Map<Class<?>, List<?>> CACHED_COLLECTIONS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, AtomicLong> idCounters = new ConcurrentHashMap<>();
 
     /**
      * Регистрира тип обект с име на файл за съхранение.
@@ -52,20 +55,77 @@ public class FileStorage {
     }
 
     /**
-     * Добавя нов обект към колекцията и го запазва
+     * Добавя нов обект към колекцията и го запазва.
+     * Ако обектът има поле "id" и то е нула или null, ще му бъде зададен автоматично генериран идентификатор.
      */
     public static <T> void addObject(T object) {
         Class<?> type = object.getClass();
-        List<Object> collection = (List<Object>) CACHED_COLLECTIONS.computeIfAbsent(
-                type, k -> new ArrayList<>());
-        collection.add(object);
-        saveCollection(type);
+        try {
+            Field idField = type.getDeclaredField("id");
+            idField.setAccessible(true);
+            Object value = idField.get(object);
+
+            // Get the collection first to check for duplicates
+            List<T> collection = getCollection((Class<T>) type);
+
+            // Check if ID is manually set (not null and not zero)
+            if (value != null && value instanceof Number && ((Number) value).longValue() != 0L) {
+                // Check for duplicate IDs
+                long objectId = ((Number) value).longValue();
+                for (T item : collection) {
+                    Object itemId = idField.get(item);
+                    if (itemId instanceof Number && ((Number) itemId).longValue() == objectId) {
+                        throw new IllegalArgumentException("Object with ID " + objectId + " already exists");
+                    }
+                }
+            } else {
+                // Auto-generate ID for null or zero values
+                long maxId = 0;
+                try {
+                    for (T item : collection) {
+                        Object itemId = idField.get(item);
+                        if (itemId instanceof Number) {
+                            long id = ((Number) itemId).longValue();
+                            if (id > maxId) {
+                                maxId = id;
+                            }
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    // Ignore errors
+                }
+
+                // Use max ID + 1 as new ID
+                long newId = maxId + 1;
+                AtomicLong counter = idCounters.computeIfAbsent(type, k -> new AtomicLong(newId));
+
+                // Set the new ID on the object
+                if (idField.getType().equals(int.class) || idField.getType().equals(Integer.class)) {
+                    idField.set(object, (int) newId);
+                } else if (idField.getType().equals(long.class) || idField.getType().equals(Long.class)) {
+                    idField.set(object, newId);
+                }
+            }
+
+            // Add object to collection
+            collection.add(object);
+            CACHED_COLLECTIONS.put(type, collection);
+            saveCollection(type);
+
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            // If there's no "id" field, skip auto ID assignment and just add the object
+            List<Object> collection = (List<Object>) CACHED_COLLECTIONS.computeIfAbsent(
+                    type, k -> new ArrayList<>());
+            collection.add(object);
+            saveCollection(type);
+        }
     }
 
     /**
      * Актуализира обект в колекцията
      * @param object Обектът, който трябва да бъде актуализиран
      * @param matcher Функция, която определя дали обектът съвпада с търсения елемент
+     * @return true ако обектът е актуализиран, false ако не е намерен
      */
     public static <T> boolean updateObject(T object, MatcherFunction<T> matcher) {
         Class<?> type = object.getClass();
@@ -135,7 +195,6 @@ public class FileStorage {
     }
 
     // Приватни помощни методи
-
 
     @SuppressWarnings("unchecked")
     private static <T> void loadCollection(Class<T> type) {
