@@ -1,6 +1,13 @@
+package model;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Product {
+public class Product implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private int id;
     private String name;
     private double unitPurchasePrice;
@@ -56,7 +63,8 @@ public class Product {
     }
 
     public boolean isProductSellable(){
-        return expirationDate.isBefore(LocalDate.now());
+        return expirationDate.isAfter(LocalDate.now()) ||
+                expirationDate.isEqual(LocalDate.now());
     }
 
     public int getQuantity() {
