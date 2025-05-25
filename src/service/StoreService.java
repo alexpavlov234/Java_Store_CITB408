@@ -186,8 +186,8 @@ public class StoreService implements DataService<Store, Integer> {
                 continue;
             }
 
-            int productIndex = -1;
-            int quantity = -1;
+            int productIndex;
+            int quantity;
 
             try {
                 productIndex = Integer.parseInt(parts[0]) - 1;

@@ -82,7 +82,7 @@ public class FileStorage {
 
             List<T> collection = getCollection((Class<T>) type);
 
-            if (value != null && value instanceof Number && ((Number) value).longValue() != 0L) {
+            if (value instanceof Number && ((Number) value).longValue() != 0L) {
                 long objectId = ((Number) value).longValue();
                 for (T item : collection) {
                     Object itemId = idField.get(item);
@@ -124,8 +124,8 @@ public class FileStorage {
                 saveIndividualObjectAsSeparateFile(object);
             }
 
-        } catch (Exception е) {
-            throw new RuntimeException("Неуспешно записване на обект от тип " + type.getSimpleName(), е);
+        } catch (Exception e) {
+            throw new RuntimeException("Неуспешно записване на обект от тип " + type.getSimpleName(), e);
         }
     }
 
@@ -180,7 +180,7 @@ public class FileStorage {
     }
 
     /**
-     * Връща името на файла за даден тип oбект, ако е регистрирано такова.
+     * Връща името на файла за даден тип обект, ако е регистрирано такова.
      * Ако не е регистрирано, ще се използва автоматично генерирано име на файла
      *
      * @param type Типът на обекта, за който се търси име на файл
@@ -246,7 +246,6 @@ public class FileStorage {
      *
      * @param type Типът на обектите, които трябва да бъдат заредени
      */
-    @SuppressWarnings("unchecked")
     private static <T> void loadCollection(Class<T> type) {
         String dir = getDirectoryForType(type);
         String fileName = getFileNameForType(type);

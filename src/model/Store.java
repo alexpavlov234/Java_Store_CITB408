@@ -23,7 +23,7 @@ public class Store implements Serializable {
     private Map<Integer, Integer> productsInStock = new HashMap<>();
     private Map<Integer, Integer> productsSold = new HashMap<>();
 
-    private Map<ProductCategory, Double> markupPercentages = new HashMap<>();
+    private Map<ProductCategory, Double> markupPercentages;
 
     private int daysBeforeExpirationThreshold;
     private double discountPercentNearExpiration;
@@ -81,7 +81,7 @@ public class Store implements Serializable {
     }
 
     public void removeCashier(int cashierId) {
-        cashiersIds.remove(Integer.valueOf(cashierId));
+        cashiersIds.remove(cashierId);
     }
 
     public Set<Integer> getReceiptsIds() {
@@ -97,7 +97,7 @@ public class Store implements Serializable {
     }
 
     public void removeReceipt(int receiptId) {
-        receiptsIds.remove(Integer.valueOf(receiptId));
+        receiptsIds.remove(receiptId);
     }
 
     // Add methods to manage inventory
@@ -116,7 +116,7 @@ public class Store implements Serializable {
 
         int currentStock = productsInStock.getOrDefault(product.getId(), 0);
         if (currentStock < quantity) {
-            return false; // Not enough stock
+            return false;
         }
 
         productsInStock.put(product.getId(), currentStock - quantity);

@@ -35,12 +35,12 @@ public class DataInitializer {
             if (isFirstRun) {
                 System.out.println("Инициализиране на първоначални тестови данни...");
 
-                Store store1 = storeService.createEntity(new Store("Магазин София", new HashMap<ProductCategory, Double>() {{
+                Store store1 = storeService.createEntity(new Store("Магазин София", new HashMap<>() {{
                     put(ProductCategory.FOOD, 20.0);
                     put(ProductCategory.NON_FOOD, 30.0);
                 }}, 3, 25.0));
 
-                Store store2 = storeService.createEntity(new Store("Магазин Пловдив", new HashMap<ProductCategory, Double>() {{
+                Store store2 = storeService.createEntity(new Store("Магазин Пловдив", new HashMap<>() {{
                     put(ProductCategory.FOOD, 15.0);
                     put(ProductCategory.NON_FOOD, 25.0);
                 }}, 2, 20.0));

@@ -15,7 +15,7 @@ public class Receipt implements Serializable {
     private int cashierId;
     private LocalDateTime dateTime;
     private double totalPrice;
-    private Map<Product, Integer> purchasedProducts = new HashMap<>();
+    private Map<Product, Integer> purchasedProducts;
 
     public Receipt(int clientId, int cashierId, LocalDateTime dateTime, double totalPrice, Map<Product, Integer> purchasedProducts) {
         this.clientId = clientId;
@@ -73,8 +73,7 @@ public class Receipt implements Serializable {
     // Add a method to add products to the receipt
     public void addProduct(Product product, int quantity, double unitPrice) {
         if (purchasedProducts.containsKey(product)) {
-            int currentQty = purchasedProducts.get(product);
-            purchasedProducts.put(product, currentQty + quantity);
+            purchasedProducts.compute(product, (k, currentQty) -> currentQty + quantity);
         } else {
             purchasedProducts.put(product, quantity);
         }

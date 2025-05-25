@@ -1,10 +1,6 @@
-import dao.*;
 import model.*;
 import service.*;
 import util.DataInitializer;
-
-import java.util.List;
-import java.util.Optional;
 
 public class Main {
     private static final CashierService cashierService = ServiceFactory.getCashierService();
