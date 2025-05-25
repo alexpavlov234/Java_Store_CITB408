@@ -1,5 +1,7 @@
 package model;
 
+import service.CashDeskService;
+import service.CashierService;
 import service.ProductService;
 import service.ServiceFactory;
 
@@ -8,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class Store implements Serializable {
     @Serial
@@ -47,7 +50,6 @@ public class Store implements Serializable {
     public boolean isProductExpirationDiscountable(Product product) {
         return daysBeforeExpirationThreshold >= ChronoUnit.DAYS.between(LocalDate.now(), product.getExpirationDate());
     }
-
 
 
     public int getId() {
@@ -188,8 +190,8 @@ public class Store implements Serializable {
     }
 
 
-    public List<Product> getAvailableProducts() {
-        List<Product> availableProducts = new ArrayList<>();
+    public ArrayList<Product> getAvailableProducts() {
+        ArrayList<Product> availableProducts = new ArrayList<>();
         ProductService productService = ServiceFactory.getProductService();
         for (Map.Entry<Integer, Integer> entry : productsInStock.entrySet()) {
             int productId = entry.getKey();
@@ -199,7 +201,7 @@ public class Store implements Serializable {
                 Optional<Product> productOpt = productService.findEntityById(productId);
                 if (productOpt.isPresent()) {
                     Product product = productOpt.get();
-                    if (!product.isProductExpired()){
+                    if (!product.isProductExpired()) {
                         availableProducts.add(product);
                     }
                 }
@@ -220,5 +222,33 @@ public class Store implements Serializable {
                 productService.updateEntity(product);
             }
         }
+    }
+
+    public ArrayList<CashDesk> getCashDesks() {
+        ArrayList<CashDesk> cashDesks = new ArrayList<>();
+        CashDeskService cashDeskService = ServiceFactory.getCashDeskService();
+
+        for (Integer cashierId : cashiersIds) {
+            Predicate<CashDesk> filter = cashDesk -> cashDesk.getCashier() == cashierId;
+
+            Optional<CashDesk> cashDeskOpt = cashDeskService.findEntityByFilter(filter);
+            if (cashDeskOpt.isPresent()) {
+                CashDesk cashDesk = cashDeskOpt.get();
+                cashDesks.add(cashDesk);
+            } else {
+                throw new IllegalArgumentException("Каса с касиер с ID " + cashierId + " не съществува");
+            }
+
+        }
+
+        return cashDesks;
+    }
+
+
+    public void setProductStock(int id, int i) {
+        if (i < 0) {
+            throw new IllegalArgumentException("Количеството на продукт с ID " + id + " не може да бъде отрицателно");
+        }
+        productsInStock.put(id, i);
     }
 }

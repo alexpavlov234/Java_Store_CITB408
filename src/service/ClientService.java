@@ -41,7 +41,15 @@ public class ClientService implements DataService<Client, Integer> {
     }
 
     @Override
-    public ArrayList<Client> findEntityByFilter(Predicate<Client> filter) {
+    public Optional<Client> findEntityByFilter(Predicate<Client> filter) {
+        return FileStorage.getCollection(Client.class)
+                .stream()
+                .filter(filter)
+                .findFirst();
+    }
+
+    @Override
+    public ArrayList<Client> findEntitiesByFilter(Predicate<Client> filter) {
         return (ArrayList<Client>) FileStorage.getCollection(Client.class)
                 .stream()
                 .filter(filter)
@@ -67,5 +75,53 @@ public class ClientService implements DataService<Client, Integer> {
         if (entity.getBalance() < 0) {
             throw new IllegalArgumentException("Балансът на клиент с ID " + entity.getId() + " не може да бъде отрицателен");
         }
+    }
+
+    public Client registerClient(){
+        Client client;
+        System.out.print("Въведете вашето име: ");
+        String name = System.console().readLine();
+        System.out.print("Въведете вашия баланс: ");
+        double balance = -1;
+        while (balance < 0) {
+            try {
+                balance = Double.parseDouble(System.console().readLine());
+                if (balance < 0) {
+                    System.out.println("Балансът трябва да бъде положително число. Моля, опитайте отново.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Невалиден баланс. Моля, въведете валидно число.");
+            }
+        }
+        client = this.createEntity(new Client(name, balance));
+        System.out.println("Регистрирахме ви успешно като клиент: " + client.getName() + " с баланс: " + client.getBalance() + " лв.");
+
+        return client;
+    }
+
+    public Client loginClient() {
+        ArrayList<Client> clients = this.findAllEntities();
+        if (clients.isEmpty()) {
+            System.out.println("Няма регистрирани клиенти. Моля, регистрирайте се първо.");
+            registerClient();
+        }
+        System.out.println("Изберете клиент от списъка:");
+        for (int i = 0; i < clients.size(); i++) {
+            System.out.println((i + 1) + ". " + clients.get(i).getName());
+        }
+        int clientIndex = -1;
+        while (clientIndex < 0 || clientIndex >= clients.size()) {
+            System.out.print("Въведете номера на клиента: ");
+            try {
+                clientIndex = Integer.parseInt(System.console().readLine()) - 1;
+            } catch (NumberFormatException e) {
+                System.out.println("Невалиден номер. Моля, опитайте отново.");
+            }
+        }
+        Client client = clients.get(clientIndex);
+        System.out.println("Добре дошли, " + client.getName() + "!");
+
+        return client;
+
     }
 }

@@ -44,11 +44,17 @@ public class CashierService implements DataService<Cashier, Integer> {
     }
 
     @Override
-    public ArrayList<Cashier> findEntityByFilter(Predicate<Cashier> filter) {
+    public Optional<Cashier> findEntityByFilter(Predicate<Cashier> filter) {
+        return FileStorage.getCollection(Cashier.class)
+                .stream()
+                .filter(filter).findFirst();
+    }
+
+    @Override
+    public ArrayList<Cashier> findEntitiesByFilter(Predicate<Cashier> filter){
         return (ArrayList<Cashier>) FileStorage.getCollection(Cashier.class)
                 .stream()
-                .filter(filter)
-                .toList();
+                .filter(filter).toList();
     }
 
     // Допълнителни специфични методи за касиери могат да бъдат добавени тук

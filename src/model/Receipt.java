@@ -17,12 +17,12 @@ public class Receipt implements Serializable {
     private double totalPrice;
     private Map<Product, Integer> purchasedProducts = new HashMap<>();
 
-    public Receipt(int id, int clientId, int cashierId, LocalDateTime dateTime) {
-        this.id = id;
+    public Receipt(int clientId, int cashierId, LocalDateTime dateTime, double totalPrice, Map<Product, Integer> purchasedProducts) {
         this.clientId = clientId;
         this.cashierId = cashierId;
         this.dateTime = dateTime;
-        this.totalPrice = 0.0; // Initialize total price to 0
+        this.totalPrice = totalPrice;
+        this.purchasedProducts = purchasedProducts;
     }
 
     public int getId() {

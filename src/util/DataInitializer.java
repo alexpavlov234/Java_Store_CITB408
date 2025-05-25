@@ -78,16 +78,6 @@ public class DataInitializer {
                 store1.updateProductPrices();
                 store2.updateProductPrices();
 
-                // Създаване на клиенти
-                clientService.createEntity(new Client("Николина Чаушева", 120));
-                clientService.createEntity(new Client("Иван Петров", 10));
-                clientService.createEntity(new Client("Мария Георгиева", 200));
-                clientService.createEntity(new Client("Георги Димитров", 180));
-                clientService.createEntity(new Client("Анна Иванова", 220));
-                clientService.createEntity(new Client("Петър Колев", 170));
-                clientService.createEntity(new Client("Светла Стоянова", 130));
-                clientService.createEntity(new Client("Димитър Василев", 160));
-
                 System.out.println("Тестовите данни са заредени успешно!");
             } else {
                 System.out.println("Съществуващи данни бяха намерени. Прескачане на инициализацията.");

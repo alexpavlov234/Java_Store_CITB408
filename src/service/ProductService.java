@@ -42,7 +42,14 @@ public class ProductService implements DataService<Product, Integer> {
     }
 
     @Override
-    public ArrayList<Product> findEntityByFilter(Predicate<Product> filter) {
+    public Optional<Product> findEntityByFilter(Predicate<Product> filter) {
+        return FileStorage.getCollection(Product.class).stream()
+                .filter(filter)
+                .findFirst();
+    }
+
+    @Override
+    public ArrayList<Product> findEntitiesByFilter(Predicate<Product> filter) {
         return (ArrayList<Product>) FileStorage.getCollection(Product.class).stream()
                 .filter(filter)
                 .toList();

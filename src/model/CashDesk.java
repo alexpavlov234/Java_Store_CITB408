@@ -15,6 +15,10 @@ public class CashDesk implements Serializable {
         this.cashierId = cashierId;
     }
 
+    public CashDesk() {
+
+    }
+
     public int getId() {
         return id;
     }

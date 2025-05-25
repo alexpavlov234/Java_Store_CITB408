@@ -42,11 +42,17 @@ public class CashDeskService implements DataService<CashDesk, Integer> {
     }
 
     @Override
-    public ArrayList<CashDesk> findEntityByFilter(Predicate<CashDesk> filter) {
+    public Optional<CashDesk> findEntityByFilter(Predicate<CashDesk> filter) {
+        return FileStorage.getCollection(CashDesk.class)
+                .stream()
+                .filter(filter).findFirst();
+    }
+
+    @Override
+    public ArrayList<CashDesk> findEntitiesByFilter(Predicate<CashDesk> filter) {
         return (ArrayList<CashDesk>) FileStorage.getCollection(CashDesk.class)
                 .stream()
-                .filter(filter)
-                .toList();
+                .filter(filter).toList();
     }
 
     @Override

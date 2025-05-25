@@ -45,12 +45,20 @@ public interface DataService<T, ID> {
     ArrayList<T> findAllEntities();
 
     /**
-     * Намира всички обекти, които отговарят на определено условие
+     * Намира обект, които отговаря на определено условие
+     *
+     * @param filter условието, на което трябва да отговаря обектът
+     * @return първият обект, който отговаря на условието, или празен Optional, ако такъв не е намерен
+     */
+    Optional<T> findEntityByFilter(Predicate<T> filter);
+
+    /**
+     * Намира обекти, които отговарят на определено условие
      *
      * @param filter условието, на което трябва да отговарят обектите
-     * @return списък с обекти, отговарящи на условието
+     * @return списък с обекти, които отговарят на условието
      */
-    ArrayList<T> findEntityByFilter(Predicate<T> filter);
+    ArrayList<T> findEntitiesByFilter(Predicate<T> filter);
 
     /**
      * Отпечатва информация за обект в конзолата
