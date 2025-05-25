@@ -11,6 +11,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Predicate;
 
+/**
+ * Представлява магазин.
+ */
 public class Store implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -27,6 +30,14 @@ public class Store implements Serializable {
     private int daysBeforeExpirationThreshold;
     private double discountPercentNearExpiration;
 
+    /**
+     * Конструктор за създаване на магазин.
+     *
+     * @param name                          Име на магазина.
+     * @param markupPercentages             Речник с хеш-таблица с проценти на надценка по категории продукти.
+     * @param daysBeforeExpirationThreshold Брой дни преди изтичане на срока на годност, за които се прилага отстъпка.
+     * @param discountPercentNearExpiration Процент на отстъпка за продукти с наближаващ срок на годност.
+     */
     public Store(String name, Map<ProductCategory, Double> markupPercentages, int daysBeforeExpirationThreshold, double discountPercentNearExpiration) {
         this.name = name;
         this.markupPercentages = markupPercentages;
@@ -34,6 +45,12 @@ public class Store implements Serializable {
         this.discountPercentNearExpiration = discountPercentNearExpiration;
     }
 
+    /**
+     * Изчислява крайната цена на продукт, като взима предвид надценката и евентуална отстъпка за наближаващ срок на годност.
+     *
+     * @param product Продуктът, за който се изчислява цената.
+     * @return Крайната цена на продукта.
+     */
     public double getProductFinalPrice(Product product) {
         double markupPercentage = markupPercentages.get(product.getCategory());
 
@@ -46,60 +63,132 @@ public class Store implements Serializable {
         }
     }
 
+    /**
+     * Проверява дали продуктът подлежи на отстъпка поради наближаващ срок на годност.
+     *
+     * @param product Продуктът за проверка.
+     * @return true, ако продуктът подлежи на отстъпка, false в противен случай.
+     */
     public boolean isProductExpirationDiscountable(Product product) {
         return daysBeforeExpirationThreshold >= ChronoUnit.DAYS.between(LocalDate.now(), product.getExpirationDate());
     }
 
 
+    /**
+     * Връща ID на магазина.
+     *
+     * @return ID на магазина.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Задава ID на магазина.
+     *
+     * @param id Ново ID на магазина.
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Връща името на магазина.
+     *
+     * @return Име на магазина.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Задава името на магазина.
+     *
+     * @param name Ново име на магазина.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Връща множество от ID-та на касиерите в магазина.
+     *
+     * @return Множество от ID-та на касиери.
+     */
     public Set<Integer> getCashiersIds() {
         return cashiersIds;
     }
 
+    /**
+     * Задава множество от ID-та на касиерите в магазина.
+     *
+     * @param cashiersIds Ново множество от ID-та на касиери.
+     */
     public void setCashiersIds(Set<Integer> cashiersIds) {
         this.cashiersIds = cashiersIds;
     }
 
+    /**
+     * Добавя ID на касиер към магазина.
+     *
+     * @param cashierId ID на касиера за добавяне.
+     */
     public void addCashier(int cashierId) {
         cashiersIds.add(cashierId);
     }
 
+    /**
+     * Премахва ID на касиер от магазина.
+     *
+     * @param cashierId ID на касиера за премахване.
+     */
     public void removeCashier(int cashierId) {
         cashiersIds.remove(cashierId);
     }
 
+    /**
+     * Връща множество от ID-та на касовите бележки, издадени в магазина.
+     *
+     * @return Множество от ID-та на касови бележки.
+     */
     public Set<Integer> getReceiptsIds() {
         return receiptsIds;
     }
 
+    /**
+     * Задава множество от ID-та на касовите бележки, издадени в магазина.
+     *
+     * @param receiptsIds Ново множество от ID-та на касови бележки.
+     */
     public void setReceiptsIds(Set<Integer> receiptsIds) {
         this.receiptsIds = receiptsIds;
     }
 
+    /**
+     * Добавя ID на касова бележка към магазина.
+     *
+     * @param receiptId ID на касовата бележка за добавяне.
+     */
     public void addReceipt(int receiptId) {
         receiptsIds.add(receiptId);
     }
 
+    /**
+     * Премахва ID на касова бележка от магазина.
+     *
+     * @param receiptId ID на касовата бележка за премахване.
+     */
     public void removeReceipt(int receiptId) {
         receiptsIds.remove(receiptId);
     }
 
-    // Add methods to manage inventory
+    /**
+     * Добавя количество към наличността на даден продукт в магазина.
+     *
+     * @param product  Продуктът, на който се добавя наличност.
+     * @param quantity Количество за добавяне.
+     * @throws IllegalArgumentException ако количеството е отрицателно.
+     */
     public void addProductStock(Product product, int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Количеството на продукт с ID " + product.getId() + " не може да бъде отрицателно");
@@ -108,6 +197,14 @@ public class Store implements Serializable {
         productsInStock.put(product.getId(), currentStock + quantity);
     }
 
+    /**
+     * Премахва количество от наличността на даден продукт в магазина.
+     *
+     * @param product  Продуктът, от който се премахва наличност.
+     * @param quantity Количество за премахване.
+     * @return true, ако операцията е успешна, false ако няма достатъчно наличност.
+     * @throws IllegalArgumentException ако количеството е отрицателно.
+     */
     public boolean removeProductStock(Product product, int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Количеството на продукт с ID " + product.getId() + " не може да бъде отрицателно");
@@ -122,6 +219,13 @@ public class Store implements Serializable {
         return true;
     }
 
+    /**
+     * Добавя количество към продадените бройки на даден продукт в магазина.
+     *
+     * @param product  Продуктът, на който се добавят продадени бройки.
+     * @param quantity Количество продадени бройки.
+     * @throws IllegalArgumentException ако количеството е отрицателно.
+     */
     public void addProductSold(Product product, int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Количеството на продукт с ID " + product.getId() + " не може да бъде отрицателно");
@@ -130,6 +234,14 @@ public class Store implements Serializable {
         productsSold.put(product.getId(), currentSold + quantity);
     }
 
+    /**
+     * Премахва количество от продадените бройки на даден продукт в магазина.
+     *
+     * @param product  Продуктът, от който се премахват продадени бройки.
+     * @param quantity Количество за премахване.
+     * @return true, ако операцията е успешна, false ако няма достатъчно продадени бройки.
+     * @throws IllegalArgumentException ако количеството е отрицателно.
+     */
     public boolean removeProductSold(Product product, int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Количеството на продукт с ID " + product.getId() + " не може да бъде отрицателно");
@@ -144,51 +256,112 @@ public class Store implements Serializable {
         return true;
     }
 
+    /**
+     * Връща текущата наличност на продукт по неговото ID.
+     *
+     * @param productId ID на продукта.
+     * @return Наличност на продукта.
+     */
     public int getProductStock(int productId) {
         return productsInStock.getOrDefault(productId, 0);
     }
 
+    /**
+     * Връща речник с хеш-таблица с наличностите на всички продукти в магазина (ID на продукт -> количество).
+     *
+     * @return Речник с хеш-таблица с наличностите на продуктите.
+     */
     public Map<Integer, Integer> getProductsInStock() {
         return productsInStock;
     }
 
+    /**
+     * Задава речник с хеш-таблица с наличностите на всички продукти в магазина.
+     *
+     * @param productsInStock Нова речник с хеш-таблица с наличностите на продуктите.
+     */
     public void setProductsInStock(Map<Integer, Integer> productsInStock) {
         this.productsInStock = productsInStock;
     }
 
+    /**
+     * Връща речник с хеш-таблица с продадените бройки на всички продукти в магазина (ID на продукт -> количество).
+     *
+     * @return Речник с хеш-таблица с продадените бройки на продуктите.
+     */
     public Map<Integer, Integer> getProductsSold() {
         return productsSold;
     }
 
+    /**
+     * Задава речник с хеш-таблица с продадените бройки на всички продукти в магазина.
+     *
+     * @param productsSold Нов речник с хеш-таблица с продадените бройки на продуктите.
+     */
     public void setProductsSold(Map<Integer, Integer> productsSold) {
         this.productsSold = productsSold;
     }
 
+    /**
+     * Връща речник с хеш-таблица с процентите на надценка по категории продукти.
+     *
+     * @return Речник с хеш-таблица с проценти на надценка.
+     */
     public Map<ProductCategory, Double> getMarkupPercentages() {
         return markupPercentages;
     }
 
+    /**
+     * Задава речник с хеш-таблица с процентите на надценка по категории продукти.
+     *
+     * @param markupPercentages Нов речник с хеш-таблица с проценти на надценка.
+     */
     public void setMarkupPercentages(Map<ProductCategory, Double> markupPercentages) {
         this.markupPercentages = markupPercentages;
     }
 
+    /**
+     * Връща броя дни преди изтичане на срока на годност, за които се прилага отстъпка.
+     *
+     * @return Брой дни за отстъпка.
+     */
     public int getDaysBeforeExpirationThreshold() {
         return daysBeforeExpirationThreshold;
     }
 
+    /**
+     * Задава броя дни преди изтичане на срока на годност, за които се прилага отстъпка.
+     *
+     * @param daysBeforeExpirationThreshold Нов брой дни за отстъпка.
+     */
     public void setDaysBeforeExpirationThreshold(int daysBeforeExpirationThreshold) {
         this.daysBeforeExpirationThreshold = daysBeforeExpirationThreshold;
     }
 
+    /**
+     * Връща процента на отстъпка за продукти с наближаващ срок на годност.
+     *
+     * @return Процент на отстъпка.
+     */
     public double getDiscountPercentNearExpiration() {
         return discountPercentNearExpiration;
     }
 
+    /**
+     * Задава процента на отстъпка за продукти с наближаващ срок на годност.
+     *
+     * @param discountPercentNearExpiration Нов процент на отстъпка.
+     */
     public void setDiscountPercentNearExpiration(double discountPercentNearExpiration) {
         this.discountPercentNearExpiration = discountPercentNearExpiration;
     }
 
 
+    /**
+     * Връща списък с наличните за продажба продукти в магазина (с валиден срок на годност и налични количества).
+     *
+     * @return Списък с налични продукти.
+     */
     public ArrayList<Product> getAvailableProducts() {
         ArrayList<Product> availableProducts = new ArrayList<>();
         ProductService productService = ServiceFactory.getProductService();
@@ -209,6 +382,12 @@ public class Store implements Serializable {
         return availableProducts;
     }
 
+    /**
+     * Връща списък с касовите апарати в магазина.
+     *
+     * @return Списък с касови апарати.
+     * @throws IllegalArgumentException ако няма налични каси в системата или ако каса с даден касиер не съществува.
+     */
     public ArrayList<CashDesk> getCashDesks() {
         ArrayList<CashDesk> cashDesks = new ArrayList<>();
         CashDeskService cashDeskService = ServiceFactory.getCashDeskService();
@@ -234,6 +413,13 @@ public class Store implements Serializable {
     }
 
 
+    /**
+     * Задава наличността на продукт по неговото ID.
+     *
+     * @param id ID на продукта.
+     * @param i  Количество наличност.
+     * @throws IllegalArgumentException ако количеството е отрицателно.
+     */
     public void setProductStock(int id, int i) {
         if (i < 0) {
             throw new IllegalArgumentException("Количеството на продукт с ID " + id + " не може да бъде отрицателно");

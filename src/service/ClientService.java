@@ -7,7 +7,17 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+/**
+ * Услуга за управление на клиенти.
+ */
 public class ClientService implements DataService<Client, Integer> {
+    /**
+     * Създава нов клиент.
+     *
+     * @param entity Клиентът за създаване.
+     * @return Създаденият клиент.
+     * @throws IllegalArgumentException ако данните за клиента са невалидни.
+     */
     @Override
     public Client createEntity(Client entity) {
         validateEntity(entity);
@@ -15,6 +25,13 @@ public class ClientService implements DataService<Client, Integer> {
         return entity; // Return the created entity
     }
 
+    /**
+     * Актуализира съществуващ клиент.
+     *
+     * @param entity Клиентът с актуализираните данни.
+     * @return Актуализираният клиент.
+     * @throws IllegalArgumentException ако данните за клиента са невалидни или ако клиент с такова ID не съществува.
+     */
     @Override
     public Client updateEntity(Client entity) {
         validateEntity(entity);
@@ -30,16 +47,33 @@ public class ClientService implements DataService<Client, Integer> {
         return entity;
     }
 
+    /**
+     * Намира клиент по неговото ID.
+     *
+     * @param integer ID на клиента.
+     * @return Optional, съдържащ клиента, ако е намерен, в противен случай празен Optional.
+     */
     @Override
     public Optional<Client> findEntityById(Integer integer) {
         return FileStorage.findObjectById(Client.class, integer);
     }
 
+    /**
+     * Връща списък с всички клиенти.
+     *
+     * @return Списък с всички клиенти.
+     */
     @Override
     public ArrayList<Client> getAllEntities() {
         return FileStorage.getCollection(Client.class);
     }
 
+    /**
+     * Намира клиент по зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Optional, съдържащ първия намерен клиент, отговарящ на филтъра, в противен случай празен Optional.
+     */
     @Override
     public Optional<Client> findEntityByFilter(Predicate<Client> filter) {
         return FileStorage.getCollection(Client.class)
@@ -48,6 +82,12 @@ public class ClientService implements DataService<Client, Integer> {
                 .findFirst();
     }
 
+    /**
+     * Намира всички клиенти, отговарящи на зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Списък с клиенти, отговарящи на филтъра.
+     */
     @Override
     public ArrayList<Client> findEntitiesByFilter(Predicate<Client> filter) {
         return (ArrayList<Client>) FileStorage.getCollection(Client.class)
@@ -56,6 +96,12 @@ public class ClientService implements DataService<Client, Integer> {
                 .toList();
     }
 
+    /**
+     * Валидира данните на клиент.
+     *
+     * @param entity Клиентът за валидиране.
+     * @throws IllegalArgumentException ако някоя от данните е невалидна (null, отрицателно ID, празно име, отрицателен баланс).
+     */
     @Override
     public void validateEntity(Client entity) throws IllegalArgumentException {
         if (entity == null) {
@@ -72,6 +118,11 @@ public class ClientService implements DataService<Client, Integer> {
         }
     }
 
+    /**
+     * Регистрира нов клиент чрез интеракция с потребителя през конзолата.
+     *
+     * @return Регистрираният клиент.
+     */
     public Client registerClient() {
         Client client;
         System.out.print("Въведете вашето име: ");
@@ -94,6 +145,12 @@ public class ClientService implements DataService<Client, Integer> {
         return client;
     }
 
+    /**
+     * Позволява на съществуващ клиент да влезе в системата чрез избор от списък в конзолата.
+     * Ако няма регистрирани клиенти, първо извиква метода за регистрация.
+     *
+     * @return Влезлият в системата клиент.
+     */
     public Client loginClient() {
         ArrayList<Client> clients = this.getAllEntities();
         if (clients.isEmpty()) {

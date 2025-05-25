@@ -20,9 +20,10 @@ public class ServiceFactory {
     }
 
     /**
-     * Връща услуга (service) за работа с касиери
+     * Връща инстанция на услугата за касиери (CashierService).
+     * При първо извикване създава нова инстанция (lazy initialization).
      *
-     * @return услуга за касиери
+     * @return Инстанция на CashierService.
      */
     public static CashierService getCashierService() {
         if (cashierService == null) {
@@ -32,9 +33,10 @@ public class ServiceFactory {
     }
 
     /**
-     * Връща услуга (service) за работа с каси
+     * Връща инстанция на услугата за касови апарати (CashDeskService).
+     * При първо извикване създава нова инстанция (lazy initialization).
      *
-     * @return услуга за каси
+     * @return Инстанция на CashDeskService.
      */
     public static CashDeskService getCashDeskService() {
         if (cashDeskService == null) {
@@ -44,9 +46,10 @@ public class ServiceFactory {
     }
 
     /**
-     * Връща услуга (service) за работа с клиенти
+     * Връща инстанция на услугата за клиенти (ClientService).
+     * При първо извикване създава нова инстанция (lazy initialization).
      *
-     * @return услуга за клиенти
+     * @return Инстанция на ClientService.
      */
     public static ClientService getClientService() {
         if (clientService == null) {
@@ -56,9 +59,10 @@ public class ServiceFactory {
     }
 
     /**
-     * Връща услуга (service) за работа с продукти
+     * Връща инстанция на услугата за продукти (ProductService).
+     * При първо извикване създава нова инстанция (lazy initialization).
      *
-     * @return услуга за продукти
+     * @return Инстанция на ProductService.
      */
     public static ProductService getProductService() {
         if (productService == null) {
@@ -68,9 +72,10 @@ public class ServiceFactory {
     }
 
     /**
-     * Връща услуга (service) за работа с магазини
+     * Връща инстанция на услугата за магазини (StoreService).
+     * При първо извикване създава нова инстанция (lazy initialization).
      *
-     * @return услуга за магазини
+     * @return Инстанция на StoreService.
      */
     public static StoreService getStoreService() {
         if (storeService == null) {
@@ -80,9 +85,10 @@ public class ServiceFactory {
     }
 
     /**
-     * Връща услуга (service) за работа с касови бележки
+     * Връща инстанция на услугата за касови бележки (ReceiptService).
+     * При първо извикване създава нова инстанция (lazy initialization).
      *
-     * @return услуга за касови бележки
+     * @return Инстанция на ReceiptService.
      */
     public static ReceiptService getReceiptService() {
         if (receiptService == null) {
@@ -92,3 +98,4 @@ public class ServiceFactory {
     }
 
 }
+

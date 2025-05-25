@@ -9,8 +9,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+/**
+ * Услуга за управление на магазини.
+ */
 public class StoreService implements DataService<Store, Integer> {
 
+    /**
+     * Създава нов магазин.
+     *
+     * @param entity Магазинът за създаване.
+     * @return Създаденият магазин.
+     * @throws IllegalArgumentException ако данните за магазина са невалидни.
+     */
     @Override
     public Store createEntity(Store entity) {
         validateEntity(entity);
@@ -18,6 +28,13 @@ public class StoreService implements DataService<Store, Integer> {
         return entity;
     }
 
+    /**
+     * Актуализира съществуващ магазин.
+     *
+     * @param entity Магазинът с актуализираните данни.
+     * @return Актуализираният магазин.
+     * @throws IllegalArgumentException ако данните за магазина са невалидни или ако магазин с такова ID не съществува.
+     */
     @Override
     public Store updateEntity(Store entity) {
         validateEntity(entity);
@@ -33,16 +50,33 @@ public class StoreService implements DataService<Store, Integer> {
         return entity;
     }
 
+    /**
+     * Намира магазин по неговото ID.
+     *
+     * @param integer ID на магазина.
+     * @return Optional, съдържащ магазина, ако е намерен, в противен случай празен Optional.
+     */
     @Override
     public Optional<Store> findEntityById(Integer integer) {
         return FileStorage.findObjectById(Store.class, integer);
     }
 
+    /**
+     * Връща списък с всички магазини.
+     *
+     * @return Списък с всички магазини.
+     */
     @Override
     public ArrayList<Store> getAllEntities() {
         return FileStorage.getCollection(Store.class);
     }
 
+    /**
+     * Намира магазин по зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Optional, съдържащ първия намерен магазин, отговарящ на филтъра, в противен случай празен Optional.
+     */
     @Override
     public Optional<Store> findEntityByFilter(Predicate<Store> filter) {
         return FileStorage.getCollection(Store.class)
@@ -51,6 +85,12 @@ public class StoreService implements DataService<Store, Integer> {
                 .findFirst();
     }
 
+    /**
+     * Намира всички магазини, отговарящи на зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Списък с магазини, отговарящи на филтъра.
+     */
     @Override
     public ArrayList<Store> findEntitiesByFilter(Predicate<Store> filter) {
         return (ArrayList<Store>) FileStorage.getCollection(Store.class)
@@ -59,6 +99,12 @@ public class StoreService implements DataService<Store, Integer> {
                 .toList();
     }
 
+    /**
+     * Валидира данните на магазин.
+     *
+     * @param entity Магазинът за валидиране.
+     * @throws IllegalArgumentException ако някоя от данните е невалидна (null, отрицателно ID, празно име).
+     */
     @Override
     public void validateEntity(Store entity) {
         if (entity == null) {
@@ -72,6 +118,12 @@ public class StoreService implements DataService<Store, Integer> {
         }
     }
 
+    /**
+     * Позволява на потребителя да избере магазин от списък в конзолата.
+     *
+     * @return Избраният магазин.
+     * @throws IllegalStateException ако няма налични магазини.
+     */
     public Store selectStore() {
         ArrayList<Store> stores = getAllEntities();
         if (stores.isEmpty()) {
@@ -97,6 +149,12 @@ public class StoreService implements DataService<Store, Integer> {
         return selectedStore;
     }
 
+    /**
+     * Актуализира продажните цени на всички продукти във всички магазини.
+     * Цените се изчисляват на базата на покупната цена, надценката и евентуална отстъпка за срок на годност.
+     *
+     * @throws RuntimeException ако няма заредени магазини в системата.
+     */
     public void updatePricesForAllStores() {
         ProductService productService = ServiceFactory.getProductService();
         ArrayList<Store> stores = getAllEntities();
@@ -121,6 +179,15 @@ public class StoreService implements DataService<Store, Integer> {
         System.out.println("Цените са актуализирани успешно за всички магазини.");
     }
 
+    /**
+     * Симулира процес на покупка в даден магазин от даден клиент.
+     * Включва проверка на баланс, избор на продукти, избор на каса, маркиране на продукти, плащане и генериране на касова бележка.
+     *
+     * @param store  Магазинът, в който се извършва покупката.
+     * @param client Клиентът, който извършва покупката.
+     * @throws IllegalArgumentException ако магазинът или клиентът са null, или ако данните са невалидни по време на процеса.
+     * @throws RuntimeException         ако възникне проблем с наличността на продукти или каси.
+     */
     public void makePurchase(Store store, Client client) {
 
         CashierService cashierService = ServiceFactory.getCashierService();
@@ -291,15 +358,14 @@ public class StoreService implements DataService<Store, Integer> {
         client.setBalance(client.getBalance() - totalPrice);
         clientService.updateEntity(client);
         System.out.println("Плащането е успешно!");
+
         // Създаване на касовата бележка
-        Receipt receipt = new Receipt(client.getId(), selectedCashier.getId(), java.time.LocalDateTime.now(), totalPrice, selectedProducts);
+        Receipt receipt = new Receipt(client.getId(), selectedCashier.getId(), java.time.LocalDateTime.now(), selectedProducts);
 
         // Актуализиране на наличностите в магазина
         for (Map.Entry<Product, Integer> entry : selectedProducts.entrySet()) {
-            Product product = entry.getKey();
-            int quantity = entry.getValue();
-            int currentStock = store.getProductStock(product.getId());
-            store.setProductStock(product.getId(), currentStock - quantity);
+            store.removeProductStock(entry.getKey(), entry.getValue());
+            store.addProductSold(entry.getKey(), entry.getValue());
         }
         this.updateEntity(store);
 

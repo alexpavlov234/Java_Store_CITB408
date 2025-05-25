@@ -24,7 +24,10 @@ public class DataInitializer {
     private static final CashDeskService cashDeskService = ServiceFactory.getCashDeskService();
 
     /**
-     * Инициализира данни, ако е необходимо
+     * Инициализира данни, ако е необходимо.
+     * Проверява дали съществува директория за данни и ако не,
+     * създава тестови данни за магазини, касиери, продукти и касови апарати.
+     * В случай на грешка при инициализацията, изтрива създадените данни.
      */
     public static void initializeData() {
         // Проверка дали директорията за данни съществува

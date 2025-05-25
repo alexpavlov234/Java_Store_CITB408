@@ -7,8 +7,18 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+/**
+ * Услуга за управление на продукти.
+ */
 public class ProductService implements DataService<Product, Integer> {
 
+    /**
+     * Създава нов продукт.
+     *
+     * @param entity Продуктът за създаване.
+     * @return Създаденият продукт.
+     * @throws IllegalArgumentException ако данните за продукта са невалидни.
+     */
     @Override
     public Product createEntity(Product entity) {
         validateEntity(entity);
@@ -16,6 +26,13 @@ public class ProductService implements DataService<Product, Integer> {
         return entity;
     }
 
+    /**
+     * Актуализира съществуващ продукт.
+     *
+     * @param entity Продуктът с актуализираните данни.
+     * @return Актуализираният продукт.
+     * @throws IllegalArgumentException ако данните за продукта са невалидни или ако продукт с такова ID не съществува.
+     */
     @Override
     public Product updateEntity(Product entity) {
         validateEntity(entity);
@@ -31,16 +48,33 @@ public class ProductService implements DataService<Product, Integer> {
         return entity;
     }
 
+    /**
+     * Намира продукт по неговото ID.
+     *
+     * @param integer ID на продукта.
+     * @return Optional, съдържащ продукта, ако е намерен, в противен случай празен Optional.
+     */
     @Override
     public Optional<Product> findEntityById(Integer integer) {
         return FileStorage.findObjectById(Product.class, integer);
     }
 
+    /**
+     * Връща списък с всички продукти.
+     *
+     * @return Списък с всички продукти.
+     */
     @Override
     public ArrayList<Product> getAllEntities() {
         return FileStorage.getCollection(Product.class);
     }
 
+    /**
+     * Намира продукт по зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Optional, съдържащ първия намерен продукт, отговарящ на филтъра, в противен случай празен Optional.
+     */
     @Override
     public Optional<Product> findEntityByFilter(Predicate<Product> filter) {
         return FileStorage.getCollection(Product.class).stream()
@@ -48,6 +82,12 @@ public class ProductService implements DataService<Product, Integer> {
                 .findFirst();
     }
 
+    /**
+     * Намира всички продукти, отговарящи на зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Списък с продукти, отговарящи на филтъра.
+     */
     @Override
     public ArrayList<Product> findEntitiesByFilter(Predicate<Product> filter) {
         return (ArrayList<Product>) FileStorage.getCollection(Product.class).stream()
@@ -55,6 +95,12 @@ public class ProductService implements DataService<Product, Integer> {
                 .toList();
     }
 
+    /**
+     * Валидира данните на продукт.
+     *
+     * @param product Продуктът за валидиране.
+     * @throws IllegalArgumentException ако някоя от данните е невалидна (null, отрицателно ID, празно име, отрицателна цена, липсваща категория или срок на годност).
+     */
     @Override
     public void validateEntity(Product product) {
         if (product == null) {

@@ -7,9 +7,19 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+/**
+ * Услуга за управление на касиери.
+ */
 public class CashierService implements DataService<Cashier, Integer> {
 
 
+    /**
+     * Създава нов касиер.
+     *
+     * @param entity Касиерът за създаване.
+     * @return Създаденият касиер.
+     * @throws IllegalArgumentException ако данните за касиера са невалидни.
+     */
     @Override
     public Cashier createEntity(Cashier entity) {
         validateEntity(entity);
@@ -17,6 +27,13 @@ public class CashierService implements DataService<Cashier, Integer> {
         return entity;
     }
 
+    /**
+     * Актуализира съществуващ касиер.
+     *
+     * @param entity Касиерът с актуализираните данни.
+     * @return Актуализираният касиер.
+     * @throws IllegalArgumentException ако данните за касиера са невалидни или ако касиер с такова ID не съществува.
+     */
     @Override
     public Cashier updateEntity(Cashier entity) {
         validateEntity(entity);
@@ -33,16 +50,33 @@ public class CashierService implements DataService<Cashier, Integer> {
     }
 
 
+    /**
+     * Намира касиер по неговото ID.
+     *
+     * @param integer ID на касиера.
+     * @return Optional, съдържащ касиера, ако е намерен, в противен случай празен Optional.
+     */
     @Override
     public Optional<Cashier> findEntityById(Integer integer) {
         return FileStorage.findObjectById(Cashier.class, integer);
     }
 
+    /**
+     * Връща списък с всички касиери.
+     *
+     * @return Списък с всички касиери.
+     */
     @Override
     public ArrayList<Cashier> getAllEntities() {
         return FileStorage.getCollection(Cashier.class);
     }
 
+    /**
+     * Намира касиер по зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Optional, съдържащ първия намерен касиер, отговарящ на филтъра, в противен случай празен Optional.
+     */
     @Override
     public Optional<Cashier> findEntityByFilter(Predicate<Cashier> filter) {
         return FileStorage.getCollection(Cashier.class)
@@ -50,6 +84,12 @@ public class CashierService implements DataService<Cashier, Integer> {
                 .filter(filter).findFirst();
     }
 
+    /**
+     * Намира всички касиери, отговарящи на зададен филтър (предикат).
+     *
+     * @param filter Предикатът, по който се търси.
+     * @return Списък с касиери, отговарящи на филтъра.
+     */
     @Override
     public ArrayList<Cashier> findEntitiesByFilter(Predicate<Cashier> filter) {
         return (ArrayList<Cashier>) FileStorage.getCollection(Cashier.class)
@@ -60,9 +100,9 @@ public class CashierService implements DataService<Cashier, Integer> {
     // Допълнителни специфични методи за касиери могат да бъдат добавени тук
 
     /**
-     * Изчислява сумата на заплатите на всички касиери
+     * Изчислява сумата на заплатите на всички касиери.
      *
-     * @return Сумата на заплатите на всички касиери
+     * @return Сумата на заплатите на всички касиери.
      */
     public double calculateTotalSalaries() {
         return getAllEntities().stream()
@@ -71,6 +111,12 @@ public class CashierService implements DataService<Cashier, Integer> {
     }
 
 
+    /**
+     * Валидира данните на касиер.
+     *
+     * @param cashier Касиерът за валидиране.
+     * @throws IllegalArgumentException ако някоя от данните е невалидна (null, отрицателно ID, празно име, отрицателна заплата).
+     */
     @Override
     public void validateEntity(Cashier cashier) {
         if (cashier == null) {
