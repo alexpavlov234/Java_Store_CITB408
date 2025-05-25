@@ -1,7 +1,6 @@
 package model;
 
 import service.CashDeskService;
-import service.CashierService;
 import service.ProductService;
 import service.ServiceFactory;
 

@@ -1,4 +1,5 @@
-import model.*;
+import model.Client;
+import model.Store;
 import service.*;
 import util.DataInitializer;
 

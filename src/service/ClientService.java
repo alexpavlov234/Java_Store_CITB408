@@ -72,7 +72,7 @@ public class ClientService implements DataService<Client, Integer> {
         }
     }
 
-    public Client registerClient(){
+    public Client registerClient() {
         Client client;
         System.out.print("Въведете вашето име: ");
         String name = System.console().readLine();

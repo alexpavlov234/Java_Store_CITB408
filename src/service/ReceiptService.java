@@ -76,7 +76,7 @@ public class ReceiptService implements DataService<Receipt, Integer> {
         if (entity.getCashier() < 0) {
             throw new IllegalArgumentException("Разписката с ID " + entity.getId() + " трябва да има назначен касиер");
         }
-        if(entity.getDateTime() == null) {
+        if (entity.getDateTime() == null) {
             throw new IllegalArgumentException("Разписката с ID " + entity.getId() + " трябва да има дата и час");
         }
         if (entity.getTotalPrice() < 0) {

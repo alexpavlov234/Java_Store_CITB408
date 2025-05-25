@@ -3,11 +3,12 @@ package dao;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -71,7 +72,7 @@ public class FileStorage {
      * Методът работи с обекти, които имат поле "id" от тип int или long.
      *
      * @param object Обектът, който трябва да бъде добавен
-     * @param <T> Типът на обекта
+     * @param <T>    Типът на обекта
      */
     public static <T> void addObject(T object) {
         Class<?> type = object.getClass();
@@ -159,8 +160,8 @@ public class FileStorage {
     /**
      * Търси обект в колекцията
      *
-     * @param type    Типът на колекцията
-     * @param id     Идентификатор на обекта, който трябва да бъде намерен - може да бъде Integer или Long
+     * @param type Типът на колекцията
+     * @param id   Идентификатор на обекта, който трябва да бъде намерен - може да бъде Integer или Long
      */
     public static <T> Optional<T> findObjectById(Class<T> type, Object id) {
         List<T> collection = getCollection(type);
@@ -212,7 +213,7 @@ public class FileStorage {
      * Запазва индивидуален обект в отделен файл, като използва името на класа и ID-то на обекта за име на файла.
      *
      * @param object Обектът, който трябва да бъде запазен
-     * @param <T> Типът на обекта
+     * @param <T>    Типът на обекта
      */
     private static <T> void saveIndividualObjectAsSeparateFile(T object) {
         Class<?> type = object.getClass();
@@ -272,8 +273,7 @@ public class FileStorage {
                     }
                 }
             }
-        }
-        else if (file.exists()) {
+        } else if (file.exists()) {
             try (Reader reader = new FileReader(file)) {
                 Type listType = TypeToken.getParameterized(ArrayList.class, type).getType();
                 collection = gson.fromJson(reader, listType);
@@ -313,8 +313,7 @@ public class FileStorage {
             for (T object : collection) {
                 saveIndividualObjectAsSeparateFile(object);
             }
-        }
-        else {
+        } else {
             String dir = getDirectoryForType(type);
             String fileName = getFileNameForType(type);
 
@@ -361,6 +360,17 @@ public class FileStorage {
 
 
     /**
+     * Функционален интерфейс за съвпадение на обекти.
+     * Използва се за филтриране на обекти в колекции.
+     *
+     * @param <T> Типът на обекта, който се проверява
+     */
+    @FunctionalInterface
+    public interface MatcherFunction<T> {
+        boolean matches(T object);
+    }
+
+    /**
      * Адаптер за сериализация и десериализация на LocalDateTime
      * в JSON формат, използвани от Gson.
      */
@@ -396,16 +406,5 @@ public class FileStorage {
                                      com.google.gson.JsonDeserializationContext context) throws com.google.gson.JsonParseException {
             return LocalDate.parse(json.getAsString());
         }
-    }
-
-    /**
-     * Функционален интерфейс за съвпадение на обекти.
-     * Използва се за филтриране на обекти в колекции.
-     *
-     * @param <T> Типът на обекта, който се проверява
-     */
-    @FunctionalInterface
-    public interface MatcherFunction<T> {
-        boolean matches(T object);
     }
 }

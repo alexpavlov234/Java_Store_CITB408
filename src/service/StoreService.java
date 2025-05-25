@@ -72,7 +72,7 @@ public class StoreService implements DataService<Store, Integer> {
         }
     }
 
-    public Store selectStore(){
+    public Store selectStore() {
         ArrayList<Store> stores = getAllEntities();
         if (stores.isEmpty()) {
             throw new IllegalStateException("Няма налични магазини");
@@ -292,7 +292,7 @@ public class StoreService implements DataService<Store, Integer> {
         clientService.updateEntity(client);
         System.out.println("Плащането е успешно!");
         // Създаване на касовата бележка
-        Receipt receipt = new Receipt(client.getId(),selectedCashier.getId(),java.time.LocalDateTime.now(),totalPrice,selectedProducts);
+        Receipt receipt = new Receipt(client.getId(), selectedCashier.getId(), java.time.LocalDateTime.now(), totalPrice, selectedProducts);
 
         // Актуализиране на наличностите в магазина
         for (Map.Entry<Product, Integer> entry : selectedProducts.entrySet()) {

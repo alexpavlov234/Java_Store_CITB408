@@ -51,7 +51,7 @@ public class CashierService implements DataService<Cashier, Integer> {
     }
 
     @Override
-    public ArrayList<Cashier> findEntitiesByFilter(Predicate<Cashier> filter){
+    public ArrayList<Cashier> findEntitiesByFilter(Predicate<Cashier> filter) {
         return (ArrayList<Cashier>) FileStorage.getCollection(Cashier.class)
                 .stream()
                 .filter(filter).toList();
