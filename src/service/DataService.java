@@ -61,13 +61,6 @@ public interface DataService<T, ID> {
     ArrayList<T> findEntitiesByFilter(Predicate<T> filter);
 
     /**
-     * Отпечатва информация за обект в конзолата
-     *
-     * @param entity обектът, който трябва да бъде отпечатан
-     */
-    void printEntity(T entity);
-
-    /**
      * Валидация на обект
      *
      * @param entity обектът, който трябва да бъде валидиран

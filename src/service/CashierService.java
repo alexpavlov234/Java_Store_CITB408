@@ -70,14 +70,6 @@ public class CashierService implements DataService<Cashier, Integer> {
                 .sum();
     }
 
-    @Override
-    public void printEntity(Cashier entity) {
-        if (entity == null) {
-            System.out.println("Касиерът е null");
-            return;
-        }
-        System.out.println("Касиер: " + entity.getName() + ", Заплата: " + entity.getSalary());
-    }
 
     @Override
     public void validateEntity(Cashier cashier) {

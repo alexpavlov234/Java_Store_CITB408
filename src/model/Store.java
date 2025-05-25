@@ -210,20 +210,6 @@ public class Store implements Serializable {
         return availableProducts;
     }
 
-    public void updateProductPrices() {
-        ProductService productService = ServiceFactory.getProductService();
-        for (Map.Entry<Integer, Integer> entry : productsInStock.entrySet()) {
-            int productId = entry.getKey();
-            Optional<Product> productOpt = productService.findEntityById(productId);
-            if (productOpt.isPresent()) {
-                Product product = productOpt.get();
-                double finalPrice = getProductFinalPrice(product);
-                product.setUnitSalePrice(finalPrice);
-                productService.updateEntity(product);
-            }
-        }
-    }
-
     public ArrayList<CashDesk> getCashDesks() {
         ArrayList<CashDesk> cashDesks = new ArrayList<>();
         CashDeskService cashDeskService = ServiceFactory.getCashDeskService();

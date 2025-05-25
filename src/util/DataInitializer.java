@@ -97,7 +97,6 @@ public class DataInitializer {
             System.err.println("Грешка при инициализацията на данните: " + e.getMessage());
             e.printStackTrace();
 
-            // TODO: Проверка за печат на текста на грешката
             System.err.println("Изтриване на създадените данни...");
 
             if (dataDir.exists()) {

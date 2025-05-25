@@ -35,11 +35,11 @@ public class Main {
                         System.out.println("Невалиден избор. Моля, опитайте отново.");
                     }
                 } catch (NumberFormatException e) {
-                    System.out.println("Невалиден избор. Моля, въведете число 1 или 2.");
+                    System.out.println("Невалиден избор. Моля, опитайте отново.");
                 }
             }
 
-            Client client;
+            Client client = null;
             switch (choice) {
                 case 1:
                     client = clientService.registerClient();
@@ -47,9 +47,6 @@ public class Main {
                 case 2:
                     client = clientService.loginClient();
                     break;
-                default:
-                    System.out.println("Невалиден избор. Моля, опитайте отново.");
-                    return;
             }
 
 
@@ -57,7 +54,7 @@ public class Main {
             storeService.makePurchase(store, client);
 
         } catch (Exception e) {
-            System.out.println("Възникна системна грешка, моля свържете се с администратор: " + e.getMessage());
+            System.err.println("Възникна системна грешка, моля свържете се с администратор: " + e.getMessage());
             e.printStackTrace();
         } finally {
             System.out.println("Благодарим ви, че пазарувахте при нас! Надяваме се да се видим отново. :)");

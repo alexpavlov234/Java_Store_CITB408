@@ -60,10 +60,6 @@ public class StoreService implements DataService<Store, Integer> {
     }
 
     @Override
-    public void printEntity(Store entity) {
-    }
-
-    @Override
     public void validateEntity(Store entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Магазинът не може да бъде null");
@@ -101,16 +97,26 @@ public class StoreService implements DataService<Store, Integer> {
         return selectedStore;
     }
 
-    public void updatePricesForAllStores(){
+    public void updatePricesForAllStores() {
+        ProductService productService = ServiceFactory.getProductService();
         ArrayList<Store> stores = getAllEntities();
         if (stores.isEmpty()) {
-            // TODO: Провери навсякъде всички места, където се печата текст, дали не трябва да е грешка
-            System.out.println("Няма налични магазини за актуализиране на цените.");
-            return;
+            throw new RuntimeException("Няма заредени магазини в системата!");
         }
 
         for (Store store : stores) {
-            store.updateProductPrices();
+            for (Map.Entry<Integer, Integer> entry : store.getProductsInStock().entrySet()) {
+                int productId = entry.getKey();
+                Optional<Product> productOpt = productService.findEntityById(productId);
+                if (productOpt.isPresent()) {
+                    Product product = productOpt.get();
+                    if (!product.isProductExpired()) {
+                        double finalPrice = store.getProductFinalPrice(product);
+                        product.setUnitSalePrice(finalPrice);
+                        productService.updateEntity(product);
+                    }
+                }
+            }
         }
         System.out.println("Цените са актуализирани успешно за всички магазини.");
     }
@@ -121,14 +127,30 @@ public class StoreService implements DataService<Store, Integer> {
         ClientService clientService = ServiceFactory.getClientService();
         ReceiptService receiptService = ServiceFactory.getReceiptService();
 
-        if (store == null || client == null) {
-            throw new IllegalArgumentException("Магазинът и клиентът не могат да бъдат null");
+        if (store == null) {
+            throw new IllegalArgumentException("Магазинът не може да бъде null");
+        }
+        if (client == null) {
+            throw new IllegalArgumentException("Клиентът не може да бъде null");
         }
 
         // Проверка дали клиентът има достатъчно баланс
         if (client.getBalance() <= 0) {
             System.out.println("Вашият баланс е нулев. Моля, заредете сметката си, за да пазарувате.");
-            return;
+            System.out.println("Въведете баланс: ");
+            double balance = -1;
+            while (balance < 0) {
+                try {
+                    balance = Double.parseDouble(System.console().readLine());
+                    if (balance < 0) {
+                        System.out.println("Балансът трябва да бъде положително число. Моля, опитайте отново.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Невалиден баланс. Моля, въведете валидно число.");
+                }
+            }
+            client.setBalance(balance);
+            clientService.updateEntity(client);
         }
 
         // Избор на продукти
@@ -137,8 +159,7 @@ public class StoreService implements DataService<Store, Integer> {
         System.out.println("Налични продукти в магазина:");
         ArrayList<Product> products = store.getAvailableProducts();
         if (products.isEmpty()) {
-            System.out.println("Няма налични продукти в магазина.");
-            return;
+            throw new RuntimeException("Няма налични продукти в магазина " + store.getName() + ". Моля, опитайте по-късно.");
         }
 
         for (int i = 0; i < products.size(); i++) {
@@ -198,8 +219,7 @@ public class StoreService implements DataService<Store, Integer> {
         ArrayList<CashDesk> cashDesks = store.getCashDesks();
 
         if (cashDesks.isEmpty()) {
-            System.out.println("Няма налични каси в магазина.");
-            return;
+            throw new RuntimeException("Няма налични каси в магазин " + store.getName() + ". Моля, опитайте по-късно.");
         }
 
         for (int i = 0; i < cashDesks.size(); i++) {
@@ -226,6 +246,7 @@ public class StoreService implements DataService<Store, Integer> {
         System.out.println("Избрахте каса: " + selectedCashDesk.getId() + " с касиер " + selectedCashier.getName());
 
         // Маркиране на продуктите - анимация с изчакване - 3 секунди с принтиране на точки
+        // За по-реалистично изживяване
         System.out.print("Маркиране на продуктите");
         for (int i = 0; i < 3; i++) {
             try {
@@ -233,7 +254,7 @@ public class StoreService implements DataService<Store, Integer> {
                 System.out.print(".");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.out.println("Грешка при изчакване: " + e.getMessage());
+                throw new RuntimeException("Грешка при изчакване: " + e.getMessage());
             }
         }
 

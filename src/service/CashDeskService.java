@@ -56,11 +56,6 @@ public class CashDeskService implements DataService<CashDesk, Integer> {
     }
 
     @Override
-    public void printEntity(CashDesk entity) {
-
-    }
-
-    @Override
     public void validateEntity(CashDesk cashDesk) {
         if (cashDesk == null) {
             throw new IllegalArgumentException("Касиерът не може да бъде null");

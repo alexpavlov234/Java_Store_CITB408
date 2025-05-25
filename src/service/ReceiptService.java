@@ -63,12 +63,6 @@ public class ReceiptService implements DataService<Receipt, Integer> {
     }
 
     @Override
-    public void printEntity(Receipt entity) {
-
-
-    }
-
-    @Override
     public void validateEntity(Receipt entity) throws IllegalArgumentException {
         if (entity == null) {
             throw new IllegalArgumentException("Разписката не може да бъде null");

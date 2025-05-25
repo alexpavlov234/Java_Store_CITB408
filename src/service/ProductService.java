@@ -56,11 +56,6 @@ public class ProductService implements DataService<Product, Integer> {
     }
 
     @Override
-    public void printEntity(Product entity) {
-
-    }
-
-    @Override
     public void validateEntity(Product product) {
         if (product == null) {
             throw new IllegalArgumentException("Продуктът не може да бъде null");

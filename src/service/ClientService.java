@@ -57,11 +57,6 @@ public class ClientService implements DataService<Client, Integer> {
     }
 
     @Override
-    public void printEntity(Client entity) {
-
-    }
-
-    @Override
     public void validateEntity(Client entity) throws IllegalArgumentException {
         if (entity == null) {
             throw new IllegalArgumentException("Клиентът не може да бъде null");
