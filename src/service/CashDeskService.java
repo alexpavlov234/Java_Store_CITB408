@@ -33,11 +33,11 @@ public class CashDeskService implements DataService<CashDesk, Integer> {
 
     @Override
     public Optional<CashDesk> findEntityById(Integer integer) {
-        return FileStorage.findObject(CashDesk.class, c -> c.getId() == integer);
+        return FileStorage.findObjectById(CashDesk.class, integer);
     }
 
     @Override
-    public ArrayList<CashDesk> findAllEntities() {
+    public ArrayList<CashDesk> getAllEntities() {
         return FileStorage.getCollection(CashDesk.class);
     }
 
@@ -67,6 +67,9 @@ public class CashDeskService implements DataService<CashDesk, Integer> {
         }
         if (cashDesk.getId() < 0) {
             throw new IllegalArgumentException("Невалиден ID на каса");
+        }
+        if (cashDesk.getStore() < 0) {
+            throw new IllegalArgumentException("Касата с ID " + cashDesk.getId() + " трябва да бъде свързана с магазин");
         }
         if (cashDesk.getCashier() < 0) {
             throw new IllegalArgumentException("Касата с ID " + cashDesk.getId() + " трябва да има назначен касиер");

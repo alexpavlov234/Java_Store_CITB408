@@ -33,11 +33,11 @@ public class ProductService implements DataService<Product, Integer> {
 
     @Override
     public Optional<Product> findEntityById(Integer integer) {
-        return FileStorage.findObject(Product.class, p -> p.getId() == integer);
+        return FileStorage.findObjectById(Product.class, integer);
     }
 
     @Override
-    public ArrayList<Product> findAllEntities() {
+    public ArrayList<Product> getAllEntities() {
         return FileStorage.getCollection(Product.class);
     }
 

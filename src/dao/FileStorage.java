@@ -28,12 +28,14 @@ public class FileStorage {
     // Gson инстанция за сериализация и десериализация на обекти - използва се за конвертиране на обекти в JSON и обратно
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
+            // За да работят касовите бележки с Map<Product, Integer>
+            .enableComplexMapKeySerialization()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
 
     /**
-     * Регистрира името на файл за съхранение на обекти от даден тип.
+     * Регистрира даден тип обект с персонализирано име на файл.
      * Ако не регистрирате типа, ще се използва автоматично генерирано име.
      */
     public static <T> void registerType(Class<T> type, String fileName) {
@@ -41,43 +43,19 @@ public class FileStorage {
     }
 
     /**
-     * Регистрира за даден тип обекти, че трябва да се съхраняват в персонализирана директория и като отделни файлове.
+     * Регистрира даден тип обект с персонализирана директория за съхранение и с възможност за използване на отделни файлове за всеки обект.
      */
     public static <T> void registerTypeWithCustomDir(Class<T> type, String customDir, boolean separateFiles) {
         TYPE_TO_CUSTOM_DIR.put(type, customDir);
         TYPE_TO_SEPARATE_FILES.put(type, separateFiles);
     }
 
-    /**
-     * Зарежда данните за всички регистирани обекти,
-     * Обхожда всички типове, регистрирани с имена на файлове и с персонализирани директории,
-     * като гарантира, че всеки тип се зарежда само веднъж.
-     */
-    public static void loadAllData() {
-        // Зарежда колекции от типове, които имат персонализирани имена на файлове
-        for (Class<?> type : TYPE_TO_FILENAME.keySet()) {
-            loadCollection(type);
-        }
-        // Зарежда колекции от типове, които имат персонализирани директории
-        for (Class<?> type : TYPE_TO_CUSTOM_DIR.keySet()) {
-            // Проверява дали типът вече е зареден
-            if (!TYPE_TO_FILENAME.containsKey(type)) {
-                loadCollection(type);
-            }
-        }
-    }
 
     /**
-     * Запазва всички регистрирани типове данни във файлове от съответните им кешове.
-     */
-    public static void saveAllData() {
-        for (Class<?> type : CACHED_COLLECTIONS.keySet()) {
-            saveCollection(type);
-        }
-    }
-
-    /**
-     * Зарежда колекция от обекти от даден тип, ако не е заредена в кеша.
+     * Зарежда колекция от обекти от даден тип, ако не е заредена в кеша, я зарежда от файл.
+     *
+     * @param type Типът на обектите, които трябва да бъдат заредени
+     * @return Колекция от обекти от дадения тип
      */
     @SuppressWarnings("unchecked")
     public static <T> ArrayList<T> getCollection(Class<T> type) {
@@ -90,6 +68,7 @@ public class FileStorage {
     /**
      * Добавя нов обект към колекцията и го запазва - като в файл, така и в кеша.
      * Ако обектът има поле "id" и то е нула или null, ще му бъде зададен автоматично генериран идентификатор.
+     * Методът работи с обекти, които имат поле "id" от тип int или long.
      *
      * @param object Обектът, който трябва да бъде добавен
      * @param <T> Типът на обекта
@@ -108,7 +87,7 @@ public class FileStorage {
                 for (T item : collection) {
                     Object itemId = idField.get(item);
                     if (itemId instanceof Number && ((Number) itemId).longValue() == objectId) {
-                        throw new IllegalArgumentException("Object with ID " + objectId + " already exists");
+                        throw new IllegalArgumentException("Обект с ID " + objectId + " вече съществува в колекцията.");
                     }
                 }
             } else {
@@ -124,7 +103,7 @@ public class FileStorage {
                         }
                     }
                 } catch (IllegalAccessException e) {
-                    // Ignore errors
+                    throw new RuntimeException("Не може да се достъпи полето 'id' на обекта", e);
                 }
 
                 long newId = maxId + 1;
@@ -141,16 +120,12 @@ public class FileStorage {
             CACHED_COLLECTIONS.put(type, collection);
             saveCollection(type);
 
-            // If the type is configured to save as separate files, also save individual file
             if (Boolean.TRUE.equals(TYPE_TO_SEPARATE_FILES.get(type))) {
-                saveIndividualObject(object);
+                saveIndividualObjectAsSeparateFile(object);
             }
 
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            List<Object> collection = (List<Object>) CACHED_COLLECTIONS.computeIfAbsent(
-                    type, k -> new ArrayList<>());
-            collection.add(object);
-            saveCollection(type);
+        } catch (Exception е) {
+            throw new RuntimeException("Неуспешно записване на обект от тип " + type.getSimpleName(), е);
         }
     }
 
@@ -170,9 +145,8 @@ public class FileStorage {
                 collection.set(i, object);
                 saveCollection(type);
 
-                // If the type is configured to save as separate files, also update individual file
                 if (Boolean.TRUE.equals(TYPE_TO_SEPARATE_FILES.get(type))) {
-                    saveIndividualObject(object);
+                    saveIndividualObjectAsSeparateFile(object);
                 }
 
                 return true;
@@ -181,60 +155,36 @@ public class FileStorage {
         return false;
     }
 
-    /**
-     * Изтрива обект от колекцията
-     *
-     * @param type    Типът на колекцията
-     * @param matcher Функция, която определя дали обектът трябва да бъде изтрит
-     */
-    public static <T> boolean removeObject(Class<T> type, MatcherFunction<T> matcher) {
-        List<T> collection = getCollection(type);
-
-        // If using separate files, find and delete the individual file
-        if (Boolean.TRUE.equals(TYPE_TO_SEPARATE_FILES.get(type))) {
-            for (T obj : collection) {
-                if (matcher.matches(obj)) {
-                    deleteIndividualObject(obj);
-                    break;
-                }
-            }
-        }
-
-        boolean removed = collection.removeIf(obj -> matcher.matches(obj));
-        if (removed) {
-            saveCollection(type);
-        }
-        return removed;
-    }
 
     /**
      * Търси обект в колекцията
      *
      * @param type    Типът на колекцията
-     * @param matcher Функция, която определя критериите за търсене
+     * @param id     Идентификатор на обекта, който трябва да бъде намерен - може да бъде Integer или Long
      */
-    public static <T> Optional<T> findObject(Class<T> type, MatcherFunction<T> matcher) {
+    public static <T> Optional<T> findObjectById(Class<T> type, Object id) {
         List<T> collection = getCollection(type);
-        return collection.stream()
-                .filter(obj -> matcher.matches(obj))
-                .findFirst();
+        for (T object : collection) {
+            try {
+                Field idField = type.getDeclaredField("id");
+                idField.setAccessible(true);
+                Object objectId = idField.get(object);
+                if (objectId != null && objectId.equals(id)) {
+                    return Optional.of(object);
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                System.err.println("Error accessing 'id' field in " + type.getSimpleName() + ": " + e.getMessage());
+            }
+        }
+        return Optional.empty();
     }
 
     /**
-     * Намира всички обекти, отговарящи на критериите
+     * Връща името на файла за даден тип oбект, ако е регистрирано такова.
+     * Ако не е регистрирано, ще се използва автоматично генерирано име на файла
      *
-     * @param type    Типът на колекцията
-     * @param matcher Функция, която определя критериите за търсене
-     */
-    public static <T> List<T> findAllObjects(Class<T> type, MatcherFunction<T> matcher) {
-        List<T> collection = getCollection(type);
-        return collection.stream()
-                .filter(obj -> matcher.matches(obj))
-                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
-    }
-
-    /**
-     * Връща името на файла за даден тип
+     * @param type Типът на обекта, за който се търси име на файл
+     * @return Името на файла за дадения тип обект
      */
     private static <T> String getFileNameForType(Class<T> type) {
         String fileName = TYPE_TO_FILENAME.get(type);
@@ -245,7 +195,10 @@ public class FileStorage {
     }
 
     /**
-     * Връща директорията за
+     * Връща директорията за съхранение на обекти от даден тип, ако е регистрирана персонализирана директория.
+     *
+     * @param type Типът на обекта, за който се търси директория
+     * @return Директорията за съхранение на обекти от дадения тип
      */
     private static <T> String getDirectoryForType(Class<T> type) {
         String customDir = TYPE_TO_CUSTOM_DIR.get(type);
@@ -256,9 +209,12 @@ public class FileStorage {
     }
 
     /**
-     * Saves an individual object to its own file
+     * Запазва индивидуален обект в отделен файл, като използва името на класа и ID-то на обекта за име на файла.
+     *
+     * @param object Обектът, който трябва да бъде запазен
+     * @param <T> Типът на обекта
      */
-    private static <T> void saveIndividualObject(T object) {
+    private static <T> void saveIndividualObjectAsSeparateFile(T object) {
         Class<?> type = object.getClass();
         String dir = getDirectoryForType(type);
 
@@ -283,28 +239,13 @@ public class FileStorage {
         }
     }
 
+
     /**
-     * Deletes an individual object file
+     * Зарежда колекция от обекти от файл или от отделни файлове.
+     * Ако колекцията вече е заредена в кеша, няма да се зарежда отново.
+     *
+     * @param type Типът на обектите, които трябва да бъдат заредени
      */
-    private static <T> void deleteIndividualObject(T object) {
-        Class<?> type = object.getClass();
-        String dir = getDirectoryForType(type);
-
-        try {
-            Field idField = type.getDeclaredField("id");
-            idField.setAccessible(true);
-            Object id = idField.get(object);
-
-            String fileName = type.getSimpleName() + "_" + id + FILE_EXTENSION;
-            File file = new File(dir + fileName);
-            if (file.exists()) {
-                file.delete();
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            System.err.println("Error deleting individual object file: " + e.getMessage());
-        }
-    }
-
     @SuppressWarnings("unchecked")
     private static <T> void loadCollection(Class<T> type) {
         String dir = getDirectoryForType(type);
@@ -312,7 +253,6 @@ public class FileStorage {
         File file = new File(dir + fileName);
         List<T> collection = new ArrayList<>();
 
-        // If using separate files, load from individual files
         if (Boolean.TRUE.equals(TYPE_TO_SEPARATE_FILES.get(type))) {
             File directory = new File(dir);
             if (directory.exists() && directory.isDirectory()) {
@@ -327,14 +267,13 @@ public class FileStorage {
                                 collection.add(obj);
                             }
                         } catch (IOException e) {
-                            System.err.println("Error reading individual file " + individualFile.getName() +
-                                    ": " + e.getMessage());
+                            throw new RuntimeException("Грешка при четене на файл " + individualFile.getName() +
+                                    ": " + e.getMessage(), e);
                         }
                     }
                 }
             }
         }
-        // Otherwise, load from the collection file
         else if (file.exists()) {
             try (Reader reader = new FileReader(file)) {
                 Type listType = TypeToken.getParameterized(ArrayList.class, type).getType();
@@ -343,8 +282,8 @@ public class FileStorage {
                     collection = new ArrayList<>();
                 }
             } catch (IOException e) {
-                System.err.println("Error reading collection " + type.getSimpleName() +
-                        ": " + e.getMessage());
+                throw new RuntimeException("Грешка при четене на файл " + fileName +
+                        ": " + e.getMessage(), e);
             }
         }
 
@@ -352,10 +291,12 @@ public class FileStorage {
     }
 
     /**
-     * Запазва колекцията от обекти в съответния файл или файлове и в кеша.
-     * Ако е регистрирано, че трябва да се използват отделни файлове за всеки обект,
-     * ще запише всеки обект в отделен файл.
+     * Запазва колекцията от обекти в съответния файл или файлове.
+     * Ако е конфигурирано да се използват отделни файлове за всеки обект, ще ги запише поотделно.
      * В противен случай ще запише цялата колекция в един файл.
+     *
+     * @param type Типът на обектите, които трябва да бъдат запазени
+     * @param <T>  Типът на обекта
      */
     private static <T> void saveCollection(Class<T> type) {
         List<T> collection = (List<T>) CACHED_COLLECTIONS.get(type);
@@ -363,7 +304,6 @@ public class FileStorage {
             return;
         }
 
-        // If configured to use separate files, save each object individually
         if (Boolean.TRUE.equals(TYPE_TO_SEPARATE_FILES.get(type))) {
             String dir = getDirectoryForType(type);
             File dirFile = new File(dir);
@@ -372,10 +312,9 @@ public class FileStorage {
             }
 
             for (T object : collection) {
-                saveIndividualObject(object);
+                saveIndividualObjectAsSeparateFile(object);
             }
         }
-        // Otherwise save as a collection file
         else {
             String dir = getDirectoryForType(type);
             String fileName = getFileNameForType(type);
@@ -395,6 +334,32 @@ public class FileStorage {
             }
         }
     }
+
+    /**
+     * Връща пълния път до файла за даден обект, като използва типа и ID-то на обекта.
+     *
+     * @param object Обектът, за който се търси пътя до файла
+     * @return Пълният път до файла, където е съхранен обектът
+     */
+    public static <T> String getFilePathForObject(T object) {
+        Class<?> type = object.getClass();
+        String dir = getDirectoryForType(type);
+
+        try {
+            Field idField = type.getDeclaredField("id");
+            idField.setAccessible(true);
+            Object id = idField.get(object);
+            if (id == null) {
+                throw new IllegalArgumentException("Обектът няма зададен ID.");
+            }
+
+            String fileName = type.getSimpleName() + "_" + id + FILE_EXTENSION;
+            return dir + fileName;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException("Грешка при получаване на пътя до файла за обект от тип " + type.getSimpleName(), e);
+        }
+    }
+
 
     /**
      * Адаптер за сериализация и десериализация на LocalDateTime

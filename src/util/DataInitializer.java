@@ -21,6 +21,7 @@ public class DataInitializer {
     private static final StoreService storeService = ServiceFactory.getStoreService();
     private static final ProductService productService = ServiceFactory.getProductService();
     private static final ClientService clientService = ServiceFactory.getClientService();
+    private static final CashDeskService cashDeskService = ServiceFactory.getCashDeskService();
 
     /**
      * Инициализира данни, ако е необходимо
@@ -44,12 +45,26 @@ public class DataInitializer {
                     put(ProductCategory.NON_FOOD, 25.0);
                 }}, 2, 20.0));
 
-                store1.addCashier(cashierService.createEntity(new Cashier("Петър Петров", 1200)).getId());
-                store1.addCashier(cashierService.createEntity(new Cashier("Мария Иванова", 1300)).getId());
+                Cashier cashier1 = cashierService.createEntity(new Cashier("Петър Петров", 1200));
+                Cashier cashier2 = cashierService.createEntity(new Cashier("Мария Иванова", 1300));
 
-                store2.addCashier(cashierService.createEntity(new Cashier("Георги Георгиев", 1100)).getId());
-                store2.addCashier(cashierService.createEntity(new Cashier("Анна Димитрова", 1250)).getId());
-                store2.addCashier(cashierService.createEntity(new Cashier("Иван Колев", 1150)).getId());
+                store1.addCashier(cashier1.getId());
+                store1.addCashier(cashier2.getId());
+
+                cashDeskService.createEntity(new CashDesk(store1.getId(), cashier1.getId()));
+                cashDeskService.createEntity(new CashDesk(store1.getId(), cashier2.getId()));
+
+                Cashier cashier3 = cashierService.createEntity(new Cashier("Георги Георгиев", 1100));
+                Cashier cashier4 = cashierService.createEntity(new Cashier("Анна Димитрова", 1250));
+                Cashier cashier5 = cashierService.createEntity(new Cashier("Иван Колев", 1150));
+
+                store2.addCashier(cashier3.getId());
+                store2.addCashier(cashier4.getId());
+                store2.addCashier(cashier5.getId());
+
+                cashDeskService.createEntity(new CashDesk(store2.getId(), cashier3.getId()));
+                cashDeskService.createEntity(new CashDesk(store2.getId(), cashier4.getId()));
+                cashDeskService.createEntity(new CashDesk(store2.getId(), cashier5.getId()));
 
                 store1.addProductStock(productService.createEntity(new Product("Хляб Симид", 0.90, ProductCategory.FOOD, LocalDate.now().plusMonths(2))), 20);
                 store1.addProductStock(productService.createEntity(new Product("Мляко Верея", 1.20, ProductCategory.FOOD, LocalDate.now().plusMonths(1))), 15);
@@ -74,10 +89,6 @@ public class DataInitializer {
                 storeService.updateEntity(store1);
                 storeService.updateEntity(store2);
 
-                // Актуализиране на цените на продуктите в магазините
-                store1.updateProductPrices();
-                store2.updateProductPrices();
-
                 System.out.println("Тестовите данни са заредени успешно!");
             } else {
                 System.out.println("Съществуващи данни бяха намерени. Прескачане на инициализацията.");
@@ -86,9 +97,9 @@ public class DataInitializer {
             System.err.println("Грешка при инициализацията на данните: " + e.getMessage());
             e.printStackTrace();
 
+            // TODO: Проверка за печат на текста на грешката
             System.err.println("Изтриване на създадените данни...");
 
-            // Deletes the data directory if initialization fails
             if (dataDir.exists()) {
                 for (File file : dataDir.listFiles()) {
                     if (!file.delete()) {

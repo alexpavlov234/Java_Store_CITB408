@@ -35,11 +35,11 @@ public class CashierService implements DataService<Cashier, Integer> {
 
     @Override
     public Optional<Cashier> findEntityById(Integer integer) {
-        return FileStorage.findObject(Cashier.class, c -> c.getId() == integer);
+        return FileStorage.findObjectById(Cashier.class, integer);
     }
 
     @Override
-    public ArrayList<Cashier> findAllEntities() {
+    public ArrayList<Cashier> getAllEntities() {
         return FileStorage.getCollection(Cashier.class);
     }
 
@@ -65,7 +65,7 @@ public class CashierService implements DataService<Cashier, Integer> {
      * @return Сумата на заплатите на всички касиери
      */
     public double calculateTotalSalaries() {
-        return findAllEntities().stream()
+        return getAllEntities().stream()
                 .mapToDouble(Cashier::getSalary)
                 .sum();
     }

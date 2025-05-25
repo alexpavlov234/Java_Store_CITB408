@@ -38,11 +38,11 @@ public interface DataService<T, ID> {
     Optional<T> findEntityById(ID id);
 
     /**
-     * Намира всички обекти
+     * Извлича всички обекти от хранилището
      *
      * @return списък с всички обекти
      */
-    ArrayList<T> findAllEntities();
+    ArrayList<T> getAllEntities();
 
     /**
      * Намира обект, които отговаря на определено условие

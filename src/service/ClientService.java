@@ -32,11 +32,11 @@ public class ClientService implements DataService<Client, Integer> {
 
     @Override
     public Optional<Client> findEntityById(Integer integer) {
-        return FileStorage.findObject(Client.class, c -> c.getId() == integer);
+        return FileStorage.findObjectById(Client.class, integer);
     }
 
     @Override
-    public ArrayList<Client> findAllEntities() {
+    public ArrayList<Client> getAllEntities() {
         return FileStorage.getCollection(Client.class);
     }
 
@@ -100,7 +100,7 @@ public class ClientService implements DataService<Client, Integer> {
     }
 
     public Client loginClient() {
-        ArrayList<Client> clients = this.findAllEntities();
+        ArrayList<Client> clients = this.getAllEntities();
         if (clients.isEmpty()) {
             System.out.println("Няма регистрирани клиенти. Моля, регистрирайте се първо.");
             registerClient();

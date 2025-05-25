@@ -228,6 +228,10 @@ public class Store implements Serializable {
         ArrayList<CashDesk> cashDesks = new ArrayList<>();
         CashDeskService cashDeskService = ServiceFactory.getCashDeskService();
 
+        if (cashDeskService.getAllEntities().isEmpty()) {
+            throw new IllegalArgumentException("Няма налични каси в системата");
+        }
+
         for (Integer cashierId : cashiersIds) {
             Predicate<CashDesk> filter = cashDesk -> cashDesk.getCashier() == cashierId;
 

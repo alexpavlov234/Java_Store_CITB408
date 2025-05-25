@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 public class ReceiptService implements DataService<Receipt, Integer> {
 
+
     static {
         FileStorage.registerTypeWithCustomDir(Receipt.class, "data/receipts", true);
     }
@@ -37,11 +38,11 @@ public class ReceiptService implements DataService<Receipt, Integer> {
 
     @Override
     public Optional<Receipt> findEntityById(Integer integer) {
-        return FileStorage.findObject(Receipt.class, r -> r.getId() == integer);
+        return FileStorage.findObjectById(Receipt.class, integer);
     }
 
     @Override
-    public ArrayList<Receipt> findAllEntities() {
+    public ArrayList<Receipt> getAllEntities() {
         return FileStorage.getCollection(Receipt.class);
     }
 

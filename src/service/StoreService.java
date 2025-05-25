@@ -35,11 +35,11 @@ public class StoreService implements DataService<Store, Integer> {
 
     @Override
     public Optional<Store> findEntityById(Integer integer) {
-        return FileStorage.findObject(Store.class, s -> s.getId() == integer);
+        return FileStorage.findObjectById(Store.class, integer);
     }
 
     @Override
-    public ArrayList<Store> findAllEntities() {
+    public ArrayList<Store> getAllEntities() {
         return FileStorage.getCollection(Store.class);
     }
 
@@ -77,7 +77,7 @@ public class StoreService implements DataService<Store, Integer> {
     }
 
     public Store selectStore(){
-        ArrayList<Store> stores = findAllEntities();
+        ArrayList<Store> stores = getAllEntities();
         if (stores.isEmpty()) {
             throw new IllegalStateException("Няма налични магазини");
         }
@@ -101,10 +101,25 @@ public class StoreService implements DataService<Store, Integer> {
         return selectedStore;
     }
 
+    public void updatePricesForAllStores(){
+        ArrayList<Store> stores = getAllEntities();
+        if (stores.isEmpty()) {
+            // TODO: Провери навсякъде всички места, където се печата текст, дали не трябва да е грешка
+            System.out.println("Няма налични магазини за актуализиране на цените.");
+            return;
+        }
+
+        for (Store store : stores) {
+            store.updateProductPrices();
+        }
+        System.out.println("Цените са актуализирани успешно за всички магазини.");
+    }
+
     public void makePurchase(Store store, Client client) {
 
         CashierService cashierService = ServiceFactory.getCashierService();
         ClientService clientService = ServiceFactory.getClientService();
+        ReceiptService receiptService = ServiceFactory.getReceiptService();
 
         if (store == null || client == null) {
             throw new IllegalArgumentException("Магазинът и клиентът не могат да бъдат null");
@@ -118,6 +133,7 @@ public class StoreService implements DataService<Store, Integer> {
 
         // Избор на продукти
         System.out.println("Сега можете да изберете продукти за покупка.");
+        System.out.println("Вашият текущ баланс е: " + client.getBalance() + " лв.");
         System.out.println("Налични продукти в магазина:");
         ArrayList<Product> products = store.getAvailableProducts();
         if (products.isEmpty()) {
@@ -187,8 +203,10 @@ public class StoreService implements DataService<Store, Integer> {
         }
 
         for (int i = 0; i < cashDesks.size(); i++) {
-            System.out.println((i + 1) + ". " + (cashDesks.get(i).getId() + 1) + " с касиер " + cashierService.findEntityById(cashDesks.get(i).getCashier())
-                    .map(c -> c.getName()));
+            Optional<Cashier> cashierOpt = cashierService.findEntityById(cashDesks.get(i).getCashier());
+            if (cashierOpt.isPresent()) {
+                System.out.println((i + 1) + ". Каса № " + (i + 1) + " с касиер " + cashierOpt.get().getName());
+            }
         }
 
         int cashDeskIndex = -1;
@@ -234,7 +252,6 @@ public class StoreService implements DataService<Store, Integer> {
             System.out.printf("Продукт: %s, Количество: %d, Единична цена: %.2f лв., Обща цена: %.2f лв.\n",
                     product.getName(), quantity, unitPrice, unitPrice * quantity);
         }
-        System.out.printf("Общата цена на избраните продукти е: %.2f лв.\n", totalPrice);
 
         // Проверка дали клиентът има достатъчно баланс
         if (client.getBalance() < totalPrice) {
@@ -242,11 +259,18 @@ public class StoreService implements DataService<Store, Integer> {
         }
 
         // Плащане
+        System.out.println("Искате ли да платите общата сума от " + totalPrice + " лв.? (y/n)");
+        String paymentChoice = System.console().readLine().trim().toLowerCase();
+        if (!paymentChoice.equals("y")) {
+            System.out.println("Плащането е отменено. Благодарим ви, че пазарувахте при нас!");
+            return;
+        }
+
         System.out.println("Плащане на общата сума от " + totalPrice + " лв. на каса " + selectedCashDesk.getId() + " с касиер " + selectedCashier.getName());
         client.setBalance(client.getBalance() - totalPrice);
         clientService.updateEntity(client);
         System.out.println("Плащането е успешно!");
-        // Създаване на разписка
+        // Създаване на касовата бележка
         Receipt receipt = new Receipt(client.getId(),selectedCashier.getId(),java.time.LocalDateTime.now(),totalPrice,selectedProducts);
 
         // Актуализиране на наличностите в магазина
@@ -260,13 +284,9 @@ public class StoreService implements DataService<Store, Integer> {
 
         System.out.printf("Вашият нов баланс е: %.2f лв.\n", client.getBalance());
 
-
-
-
-
-
-
-
-
+        // Записване на касовата бележка
+        receipt = receiptService.createEntity(receipt);
+        System.out.println("Вашата разписка е създадена успешно!");
+        System.out.println("Можете да я откриете на следния адрес: " + FileStorage.getFilePathForObject(receipt));
     }
 }

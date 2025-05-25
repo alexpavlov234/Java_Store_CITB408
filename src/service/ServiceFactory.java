@@ -13,6 +13,7 @@ public class ServiceFactory {
     private static ClientService clientService;
     private static ProductService productService;
     private static StoreService storeService;
+    private static ReceiptService receiptService;
 
     // Частен конструктор, за да предотвратим създаването на инстанции
     private ServiceFactory() {
@@ -77,4 +78,17 @@ public class ServiceFactory {
         }
         return storeService;
     }
+
+    /**
+     * Връща услуга (service) за работа с касови бележки
+     *
+     * @return услуга за касови бележки
+     */
+    public static ReceiptService getReceiptService() {
+        if (receiptService == null) {
+            receiptService = new ReceiptService();
+        }
+        return receiptService;
+    }
+
 }
