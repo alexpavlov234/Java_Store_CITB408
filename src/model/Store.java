@@ -1,8 +1,6 @@
 package model;
 
-import service.CashDeskService;
-import service.ProductService;
-import service.ServiceFactory;
+import service.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -356,6 +354,90 @@ public class Store implements Serializable {
         this.discountPercentNearExpiration = discountPercentNearExpiration;
     }
 
+    /**
+     * Изчислява общите разходи за заплати на касиерите в магазина.
+     * @return Общата сума на заплатите.
+     * @throws IllegalArgumentException ако касиер с дадено ID не е намерен при изчисляване на заплати.
+     */
+    public double calculateTotalSalariesExpense() {
+        CashierService cashierService = ServiceFactory.getCashierService();
+        double totalSalaries = 0;
+        for (Integer cashierId : cashiersIds) {
+            Optional<Cashier> cashierOpt = cashierService.findEntityById(cashierId);
+            if (cashierOpt.isPresent()) {
+                totalSalaries += cashierOpt.get().getSalary();
+            } else {
+                throw new IllegalArgumentException("Касиер с ID " + cashierId + " не е намерен при изчисляване на заплати.");
+            }
+        }
+        return totalSalaries;
+    }
+
+    /**
+     * Изчислява общите разходи за доставени стоки (продадени + налични).
+     * @return Общата сума на покупните цени на доставените стоки.
+     * @throws IllegalArgumentException ако продукт с дадено ID не е намерен при изчисляване на разходи за стоки.
+     */
+    public double calculateDeliveredGoodsExpense() {
+        ProductService productService = ServiceFactory.getProductService();
+        double totalCost = 0;
+
+        // Разходи за стоки в наличност
+        for (Map.Entry<Integer, Integer> entry : productsInStock.entrySet()) {
+            Integer productId = entry.getKey();
+            Integer quantity = entry.getValue();
+            Optional<Product> productOpt = productService.findEntityById(productId);
+            if (productOpt.isPresent()) {
+                totalCost += productOpt.get().getUnitPurchasePrice() * quantity;
+            } else {
+                throw new IllegalArgumentException("Продукт с ID " + productId + " не е намерен при изчисляване на разходи за налични стоки.");
+            }
+        }
+
+        // Разходи за продадени стоки
+        for (Map.Entry<Integer, Integer> entry : productsSold.entrySet()) {
+            Integer productId = entry.getKey();
+            Integer quantity = entry.getValue();
+            Optional<Product> productOpt = productService.findEntityById(productId);
+            if (productOpt.isPresent()) {
+                totalCost += productOpt.get().getUnitPurchasePrice() * quantity;
+            } else {
+                throw new IllegalArgumentException("Продукт с ID " + productId + " не е намерен при изчисляване на разходи за продадени стоки.");
+            }
+        }
+        return totalCost;
+    }
+
+    /**
+     * Изчислява общите приходи от продадени стоки на база издадените касови бележки.
+     * @return Общата сума на приходите.
+     * @throws IllegalStateException ако ReceiptService не е наличен.
+     */
+    public double calculateTotalIncome() {
+        ReceiptService receiptService = ServiceFactory.getReceiptService();
+        double totalIncome = 0;
+        for (Integer receiptId : receiptsIds) {
+            Optional<Receipt> receiptOpt = receiptService.findEntityById(receiptId);
+            if (receiptOpt.isPresent()) {
+                totalIncome += receiptOpt.get().getTotalPrice();
+            } else {
+                System.err.println("Касова бележка с ID " + receiptId + " не е намерена при изчисляване на приходи.");
+            }
+        }
+        return totalIncome;
+    }
+
+    /**
+     * Изчислява печалбата на магазина.
+     * Печалба = Общи приходи - (Общи разходи за заплати + Общи разходи за доставени стоки)
+     * @return Печалбата на магазина.
+     */
+    public double calculateProfit() {
+        double totalIncome = calculateTotalIncome();
+        double totalSalariesExpense = calculateTotalSalariesExpense();
+        double totalGoodsExpense = calculateDeliveredGoodsExpense();
+        return totalIncome - (totalSalariesExpense + totalGoodsExpense);
+    }
 
     /**
      * Връща списък с наличните за продажба продукти в магазина (с валиден срок на годност и налични количества).

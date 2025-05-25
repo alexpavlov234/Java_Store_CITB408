@@ -130,7 +130,7 @@ public class StoreService implements DataService<Store, Integer> {
             throw new IllegalStateException("Няма налични магазини");
         }
 
-        System.out.println("Изберете магазин, в който искате да пазарувате:");
+        System.out.println("Изберете магазин:");
         for (int i = 0; i < stores.size(); i++) {
             System.out.println((i + 1) + ". " + stores.get(i).getName());
         }
@@ -266,7 +266,7 @@ public class StoreService implements DataService<Store, Integer> {
                 }
 
                 if (store.getProductStock(products.get(productIndex).getId()) < quantity) {
-                    throw new IllegalArgumentException("Недостатъчно количество от продукта " + products.get(productIndex).getName() + ". Налични са само " + store.getProductStock(products.get(productIndex).getId()) + " броя.");
+                    throw new IllegalArgumentException("Недостатъчно количество от продукта " + products.get(productIndex).getName() + ". Недостигат " + (quantity - store.getProductStock(products.get(productIndex).getId())) + " броя.");
                 }
 
                 Product selectedProduct = products.get(productIndex);
@@ -366,6 +366,7 @@ public class StoreService implements DataService<Store, Integer> {
         for (Map.Entry<Product, Integer> entry : selectedProducts.entrySet()) {
             store.removeProductStock(entry.getKey(), entry.getValue());
             store.addProductSold(entry.getKey(), entry.getValue());
+            store.addReceipt(receipt.getId());
         }
         this.updateEntity(store);
 
